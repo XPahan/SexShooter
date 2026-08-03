@@ -1,0 +1,146 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!65 &8287166121210102358
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4348671263084325954}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.8862028, y: 0.070025556, z: 0.8834902}
+  m_Center: {x: -0.0056156963, y: 0.017636541, z: 0.0001411736}
+--- !u!1 &5144683712877608772
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3766265109972482875}
+  - component: {fileID: 5936179315583695413}
+  m_Layer: 0
+  m_Name: CatacombsFloorA_04
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3766265109972482875
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5144683712877608772}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 3968311005542840056}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!205 &5936179315583695413
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5144683712877608772}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.005615711, y: 0.017636541, z: 0.0001412332}
+  m_Size: 0.8862028
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.015790317
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 2835412928045813143}
+  m_Enabled: 1
+--- !u!1001 &3501826512474738963
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 3766265109972482875}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.0000018099951
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3e467caf19a2bf947ab04811c09a66bc, type: 2}
+    - target: {fileID: 919132149155446097, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_Name
+      value: CatacombsFloorA_04
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+--- !u!1 &4348671263084325954 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+  m_PrefabInstance: {fileID: 3501826512474738963}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3968311005542840056 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+  m_PrefabInstance: {fileID: 3501826512474738963}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2835412928045813143 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: ffbc786c8b3ee7b419b81d1bd30c8d02, type: 3}
+  m_PrefabInstance: {fileID: 3501826512474738963}
+  m_PrefabAsset: {fileID: 0}

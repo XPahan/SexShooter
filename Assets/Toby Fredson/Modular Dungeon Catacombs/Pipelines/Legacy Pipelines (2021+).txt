@@ -1,0 +1,1 @@
+This asset pack supports Unity versions as low as v2021. Please note that any package lower than 6.0.71f1 has been discontinued and does not contain the latest updates and features like the "Cave Occlusion" and "Light Manager" tools.
