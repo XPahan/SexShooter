@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3309c2456bec98f41b55a6c080f0dd20
+labels:
+- Materials
+- bricks
+- buildings
+- catacombs
+- dungeon
+- pbr
+- props
+- stones
+- walls
+timeCreated: 1484606560
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: materials
+  assetBundleVariant: 
