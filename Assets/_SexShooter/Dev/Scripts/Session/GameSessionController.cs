@@ -13,12 +13,15 @@ namespace SexShooter.Dev
         [SerializeField] private EnemyWaveSpawner spawner;
         [SerializeField] private Transform playerSpawn;
         [SerializeField] private bool pauseOnDeath = true;
+        [SerializeField] private AudioClip backgroundMusic;
+        [SerializeField, Range(0f, 1f)] private float backgroundMusicVolume = 0.35f;
 
         private PlayerStats playerStats;
         private bool playerDead;
         private bool menuOpen;
         private CursorLockMode previousLock;
         private bool previousCursorVisible;
+        private AudioSource musicSource;
 
         private void Start()
         {
@@ -44,9 +47,23 @@ namespace SexShooter.Dev
             }
 
             playerStats.AddOnDieListener(OnPlayerDied);
+            StartMusic();
 
             if (spawner != null)
                 spawner.Begin(playerStats.transform);
+        }
+
+        private void StartMusic()
+        {
+            if (backgroundMusic == null) return;
+            musicSource = gameObject.GetComponent<AudioSource>();
+            if (musicSource == null) musicSource = gameObject.AddComponent<AudioSource>();
+            musicSource.clip = backgroundMusic;
+            musicSource.loop = true;
+            musicSource.playOnAwake = false;
+            musicSource.volume = backgroundMusicVolume;
+            musicSource.spatialBlend = 0f;
+            musicSource.Play();
         }
 
         private void OnDestroy()

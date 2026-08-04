@@ -125,9 +125,6 @@ namespace SexShooter.Dev
             if (animator != null && !string.IsNullOrEmpty(attackTrigger))
                 animator.SetTrigger(attackTrigger);
 
-            if (definition != null && definition.AttackSound != null)
-                AudioSource.PlayClipAtPoint(definition.AttackSound, transform.position, definition.AttackSoundVolume);
-
             Vector3 origin = muzzle != null
                 ? muzzle.position
                 : transform.position + Vector3.up * AimHeight;
@@ -136,8 +133,19 @@ namespace SexShooter.Dev
             Vector3 dir = (target - origin).normalized;
             if (dir.sqrMagnitude < 0.001f) dir = transform.forward;
 
+            if (definition != null && definition.AttackSound != null)
+                AudioSource.PlayClipAtPoint(definition.AttackSound, origin, definition.AttackSoundVolume);
+
+            if (definition != null && definition.MuzzleFlashPrefab != null)
+            {
+                var flash = Instantiate(definition.MuzzleFlashPrefab, origin, Quaternion.LookRotation(dir));
+                flash.transform.localScale = Vector3.one * definition.MuzzleFlashScale;
+                Destroy(flash, 2f);
+            }
+
+            GameObject impact = definition != null ? definition.ImpactPrefab : null;
             var bolt = Instantiate(prefab, origin, Quaternion.LookRotation(dir));
-            bolt.Launch(dir, ProjectileSpeed, ProjectileDamage, ProjectileLifetime);
+            bolt.Launch(dir, ProjectileSpeed, ProjectileDamage, ProjectileLifetime, impact);
         }
 
         private void Move(Vector3 horizontal)
@@ -191,7 +199,21 @@ namespace SexShooter.Dev
         {
             var clip = DeathSound;
             if (clip == null) return;
-            AudioSource.PlayClipAtPoint(clip, transform.position, DeathSoundVolume);
+
+            // 2D one-shot at the listener — PlayClipAtPoint is 3D and dies in large levels.
+            var listener = Camera.main != null ? Camera.main.transform : null;
+            Vector3 pos = listener != null
+                ? listener.position
+                : transform.position + Vector3.up * AimHeight;
+
+            var go = new GameObject("SuccubusDeathSFX");
+            go.transform.position = pos;
+            var src = go.AddComponent<AudioSource>();
+            src.clip = clip;
+            src.spatialBlend = 0f;
+            src.volume = 1f;
+            src.Play();
+            UnityEngine.Object.Destroy(go, clip.length + 0.15f);
         }
 
         private void SpawnDeathGore()
