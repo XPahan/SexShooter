@@ -49,8 +49,53 @@ namespace SexShooter.Dev.Editor
             WireIntoDev(enemy);
             WireSessionMusic();
             AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-            Debug.Log("[SexShooter.Dev] Succubus + Session setup complete.");
+            Debug.Log("[SexShooter.Dev] Setup complete.");
+        }
+
+        [MenuItem("SexShooter/Dev/Wire World Spawn Points To Session")]
+        public static void WireWorldSpawnPointsToSession()
+        {
+            var root = GameObject.Find("World");
+            if (root == null)
+            {
+                Debug.LogError("[SexShooter.Dev] World not found in loaded scenes.");
+                return;
+            }
+
+            var pointsRoot = root.transform.Find("Spawn_Points");
+            if (pointsRoot == null)
+            {
+                Debug.LogError("[SexShooter.Dev] World/Spawn_Points not found.");
+                return;
+            }
+
+            var spawner = UnityEngine.Object.FindFirstObjectByType<EnemyWaveSpawner>();
+            if (spawner == null)
+            {
+                Debug.LogError("[SexShooter.Dev] EnemyWaveSpawner not found in loaded scenes.");
+                return;
+            }
+
+            var children = new Transform[pointsRoot.childCount];
+            for (int i = 0; i < pointsRoot.childCount; i++)
+                children[i] = pointsRoot.GetChild(i);
+
+            var so = new SerializedObject(spawner);
+            var prop = so.FindProperty("spawnPoints");
+            prop.arraySize = children.Length;
+            for (int i = 0; i < children.Length; i++)
+                prop.GetArrayElementAtIndex(i).objectReferenceValue = children[i];
+            so.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.RecordPrefabInstancePropertyModifications(spawner);
+            EditorUtility.SetDirty(spawner);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(spawner.gameObject.scene);
+
+            // Remove old Dev fallback folder if still present under Session.
+            var markers = spawner.transform.Find("EnemySpawnPoints");
+            if (markers != null)
+                UnityEngine.Object.DestroyImmediate(markers.gameObject);
+
+            Debug.Log("[SexShooter.Dev] Wired " + children.Length + " World/Spawn_Points into " + spawner.name + ".");
         }
 
         [MenuItem("SexShooter/Dev/Setup Gore + Enemy Definition")]
@@ -542,15 +587,10 @@ namespace SexShooter.Dev.Editor
                 AddEntry(bullet, 10);
                 AddEntry(health, 4);
 
-                // Reuse enemy spawn points as fallbacks when random ground fails.
-                var markers = session.Find("EnemySpawnPoints");
+                // Pickup fallbacks stay empty — assign World/Spawn_Points in Inspector if needed.
                 var fallback = so.FindProperty("fallbackSpawnPoints");
-                if (markers != null)
-                {
-                    fallback.arraySize = markers.childCount;
-                    for (int i = 0; i < markers.childCount; i++)
-                        fallback.GetArrayElementAtIndex(i).objectReferenceValue = markers.GetChild(i);
-                }
+                if (fallback != null)
+                    fallback.arraySize = 0;
 
                 so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -819,27 +859,6 @@ namespace SexShooter.Dev.Editor
                 var session = new GameObject("Session");
                 session.transform.SetParent(root.transform, false);
 
-                // Spawn markers around Room A
-                var markers = new GameObject("EnemySpawnPoints");
-                markers.transform.SetParent(session.transform, false);
-                Vector3[] pts =
-                {
-                    new Vector3(75f, -15.5f, -55f),
-                    new Vector3(80f, -15.5f, -60f),
-                    new Vector3(70f, -15.5f, -50f),
-                    new Vector3(85f, -15.5f, -65f),
-                    new Vector3(60f, -15.5f, -55f),
-                    new Vector3(78f, -15.5f, -70f)
-                };
-                var spawnTransforms = new Transform[pts.Length];
-                for (int i = 0; i < pts.Length; i++)
-                {
-                    var p = new GameObject("Spawn_" + i);
-                    p.transform.SetParent(markers.transform, false);
-                    p.transform.position = pts[i];
-                    spawnTransforms[i] = p.transform;
-                }
-
                 var spawner = session.AddComponent<EnemyWaveSpawner>();
                 var spawnerSO = new SerializedObject(spawner);
                 spawnerSO.FindProperty("enemyPrefab").objectReferenceValue = enemyPrefab.GetComponent<SuccubusEnemy>();
@@ -848,15 +867,10 @@ namespace SexShooter.Dev.Editor
                 spawnerSO.FindProperty("spawnInterval").floatValue = 1.2f;
                 spawnerSO.FindProperty("minDistanceFromPlayer").floatValue = 8f;
                 spawnerSO.FindProperty("minSeparation").floatValue = 2f;
-                spawnerSO.FindProperty("useRandomGroundFallback").boolValue = true;
-                // Ground: Default + Ground + Object
-                spawnerSO.FindProperty("groundMask").intValue = (1 << 0) | (1 << 3) | (1 << 8);
-                // Blockage: similar + Enemy
+                // Blockage: Default + Ground + Enemy + Object
                 spawnerSO.FindProperty("blockageMask").intValue = (1 << 0) | (1 << 3) | (1 << 7) | (1 << 8);
-                var fallback = spawnerSO.FindProperty("fallbackSpawnPoints");
-                fallback.arraySize = spawnTransforms.Length;
-                for (int i = 0; i < spawnTransforms.Length; i++)
-                    fallback.GetArrayElementAtIndex(i).objectReferenceValue = spawnTransforms[i];
+                // Spawn points must be assigned in the scene Inspector (World/Spawn_Points children).
+                spawnerSO.FindProperty("spawnPoints").arraySize = 0;
                 spawnerSO.ApplyModifiedPropertiesWithoutUndo();
 
                 var sessionCtrl = session.AddComponent<GameSessionController>();
