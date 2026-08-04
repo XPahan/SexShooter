@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Succubus
   m_EditorClassIdentifier: 
   _displayName: Succubus
-  _maxHealth: 3
+  _maxHealth: 5
   _staggerDuration: 0.35
-  _moveSpeed: 2.5
+  _moveSpeed: 5
   _turnSpeed: 8
   _gravity: -20
-  _attackRange: 20
+  _attackRange: 15
   _attackCooldown: 2
-  _projectileDamage: 2
-  _projectileSpeed: 10
+  _projectileDamage: 5
+  _projectileSpeed: 12
   _projectileLifetime: 5
   _aimHeight: 1.2
   _projectilePrefab: {fileID: 5338988497629047216, guid: d338f3cb502098b4ca05621110e16671, type: 3}
