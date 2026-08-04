@@ -17,11 +17,11 @@ namespace SexShooter.Dev
 
         [SerializeField] private SuccubusEnemy enemyPrefab;
         [SerializeField] private EnemySpawnEntry[] enemyEntries;
-        [SerializeField] private int initialCount = 8;
-        [SerializeField] private int maxAlive = 15;
-        [SerializeField] private float spawnInterval = 3f;
+        [SerializeField] private int initialCount = 28;
+        [SerializeField] private int maxAlive = 45;
+        [SerializeField] private float spawnInterval = 1.2f;
         [SerializeField] private float minDistanceFromPlayer = 8f;
-        [SerializeField] private float minSeparation = 4f;
+        [SerializeField] private float minSeparation = 2f;
         [SerializeField] private float clearanceRadius = 1f;
         [SerializeField] private float capsuleHeight = 2f;
         [SerializeField] private LayerMask groundMask;
@@ -29,7 +29,7 @@ namespace SexShooter.Dev
         [Tooltip("Optional. Scene World/Spawn_Points children are auto-collected at runtime.")]
         [SerializeField] private Transform[] fallbackSpawnPoints;
         [SerializeField] private string worldSpawnPointsRootName = "Spawn_Points";
-        [SerializeField] private bool useRandomGroundFallback = false;
+        [SerializeField] private bool useRandomGroundFallback = true;
 
         private Transform player;
         private readonly List<SuccubusEnemy> alive = new List<SuccubusEnemy>();
@@ -54,8 +54,13 @@ namespace SexShooter.Dev
             nextSpawnTime = Time.time + spawnInterval;
 
             int toSpawn = Mathf.Min(initialCount, maxAlive);
-            for (int i = 0; i < toSpawn; i++)
+            int attempts = 0;
+            int maxAttempts = toSpawn * 6;
+            while (AliveCount < toSpawn && attempts < maxAttempts)
+            {
                 TrySpawnOne();
+                attempts++;
+            }
         }
 
         public void StopSpawning() => running = false;
@@ -203,7 +208,12 @@ namespace SexShooter.Dev
             result = Vector3.zero;
 
             if (spawnPoints.Count > 0 && TryPickFromSpawnPoints(out result))
+            {
+                // Slight jitter so the same authored point can host multiple enemies.
+                Vector2 jitter = Random.insideUnitCircle * 1.25f;
+                result += new Vector3(jitter.x, 0f, jitter.y);
                 return true;
+            }
 
             if (!useRandomGroundFallback)
                 return false;

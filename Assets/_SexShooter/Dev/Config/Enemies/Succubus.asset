@@ -19,6 +19,7 @@ MonoBehaviour:
   _turnSpeed: 8
   _gravity: -20
   _attackRange: 20
+  _visionRange: 40
   _attackCooldown: 2
   _projectileDamage: 2
   _projectileSpeed: 10

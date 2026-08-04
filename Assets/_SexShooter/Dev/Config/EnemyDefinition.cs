@@ -26,6 +26,7 @@ namespace SexShooter.Dev
 
         [Header("Combat")]
         [SerializeField] private float _attackRange = 20f;
+        [SerializeField] private float _visionRange = 40f;
         [SerializeField] private float _attackCooldown = 2f;
         [SerializeField] private float _aimHeight = 1.2f;
 
@@ -69,6 +70,7 @@ namespace SexShooter.Dev
         public float TurnSpeed => _turnSpeed;
         public float Gravity => _gravity;
         public float AttackRange => _attackRange;
+        public float VisionRange => Mathf.Max(_attackRange, _visionRange);
         public float AttackCooldown => _attackCooldown;
         public float ProjectileDamage => _projectileDamage;
         public float ProjectileSpeed => _projectileSpeed;
