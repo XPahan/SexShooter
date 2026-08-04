@@ -72,12 +72,52 @@ namespace SexShooter.Dev
             if (def != null)
             {
                 if (def.SpawnSound != null)
-                    AudioSource.PlayClipAtPoint(def.SpawnSound, pos, def.SpawnSoundVolume);
+                    EnemySfx.Play3D(def.SpawnSound, pos + Vector3.up, def.SpawnSoundVolume);
 
                 if (def.SpawnVfxPrefab != null)
                 {
-                    var vfx = Instantiate(def.SpawnVfxPrefab, pos, Quaternion.identity);
-                    Destroy(vfx, 3f);
+                    // Align to enemy body center (CharacterController / CapsuleCollider).
+                    float centerY = 0.9f;
+                    var cc = enemy.GetComponent<CharacterController>();
+                    if (cc != null) centerY = cc.center.y;
+                    else
+                    {
+                        var capsule = enemy.GetComponent<CapsuleCollider>();
+                        if (capsule != null) centerY = capsule.center.y;
+                    }
+
+                    var vfx = Instantiate(def.SpawnVfxPrefab, pos + Vector3.up * centerY, Quaternion.identity);
+                    float scale = def.SpawnVfxScale;
+                    vfx.transform.localScale = Vector3.one * scale;
+
+                    // Prefab may carry a baked local offset; snap children relative to spawn.
+                    var systems = vfx.GetComponentsInChildren<ParticleSystem>(true);
+                    for (int s = 0; s < systems.Length; s++)
+                    {
+                        var ps = systems[s];
+                        // Drop null secondary materials — URP often skips rendering when any slot is null.
+                        var renderer = ps.GetComponent<ParticleSystemRenderer>();
+                        if (renderer != null && renderer.sharedMaterials != null)
+                        {
+                            var mats = renderer.sharedMaterials;
+                            int valid = 0;
+                            for (int m = 0; m < mats.Length; m++)
+                                if (mats[m] != null) valid++;
+                            if (valid > 0 && valid != mats.Length)
+                            {
+                                var cleaned = new Material[valid];
+                                int idx = 0;
+                                for (int m = 0; m < mats.Length; m++)
+                                    if (mats[m] != null) cleaned[idx++] = mats[m];
+                                renderer.sharedMaterials = cleaned;
+                            }
+                        }
+
+                        ps.Clear(true);
+                        ps.Play(true);
+                    }
+
+                    Destroy(vfx, 4f);
                 }
             }
 

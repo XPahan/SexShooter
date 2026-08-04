@@ -25,6 +25,12 @@ namespace SexShooter.Dev.Editor
         private const string EffectImpactSrc = "Assets/EffectCore/packs/StylizedProjectilePack1/prefabs/Plasma/Plasma_PurpleHaze/Plasma_Medium_PurpleHaze/Plasma_PurpleHaze_Medium_Impact.prefab";
         private const string BgmPath = "Assets/Aggressive FPS Game Music/intensity 1.wav";
         private const string DevPrefabPath = "Assets/_SexShooter/Dev/Dev.prefab";
+        private const string SpawnVfxPath = "Assets/_SexShooter/Dev/Prefabs/Vfx/TeleportFinish.prefab";
+        private const string PistolPath = "Assets/Cowsins/ScriptableObjects/Weapons/Pistol.asset";
+        private const string RiflePath = "Assets/Cowsins/ScriptableObjects/Weapons/Rifle.asset";
+        private const string ShotgunPath = "Assets/Cowsins/ScriptableObjects/Weapons/Shotgun.asset";
+        private const string BulletPickupPath = "Assets/Cowsins/Prefabs/DragAndDropExtras/Bullet Pickeable.prefab";
+        private const string HealthPickupPath = "Assets/Cowsins/Prefabs/DragAndDropExtras/PowerUps/Healthpack.prefab";
 
         [MenuItem("SexShooter/Dev/Setup Succubus + Session")]
         public static void SetupAll()
@@ -82,6 +88,18 @@ namespace SexShooter.Dev.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log("[SexShooter.Dev] Audio + EffectCore VFX + Music wired.");
+        }
+
+        [MenuItem("SexShooter/Dev/Setup Weapons Pickups SpawnVFX")]
+        public static void SetupWeaponsPickupsSpawnVfx()
+        {
+            EnsureFolders();
+            WireInitialWeapons();
+            WirePickupSpawner();
+            WireSpawnVfx();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[SexShooter.Dev] Weapons + Pickups + SpawnVFX wired.");
         }
 
         private static void EnsureFolders()
@@ -424,6 +442,135 @@ namespace SexShooter.Dev.Editor
             {
                 PrefabUtility.UnloadPrefabContents(root);
             }
+        }
+
+        private static void WireInitialWeapons()
+        {
+            var pistol = AssetDatabase.LoadAssetAtPath<cowsins.Weapon_SO>(PistolPath);
+            var rifle = AssetDatabase.LoadAssetAtPath<cowsins.Weapon_SO>(RiflePath);
+            var shotgun = AssetDatabase.LoadAssetAtPath<cowsins.Weapon_SO>(ShotgunPath);
+            if (pistol == null || rifle == null || shotgun == null)
+            {
+                Debug.LogError("[SexShooter.Dev] Missing Pistol/Rifle/Shotgun Weapon_SO.");
+                return;
+            }
+
+            var root = PrefabUtility.LoadPrefabContents(DevPrefabPath);
+            try
+            {
+                var wc = root.GetComponentInChildren<cowsins.WeaponController>(true);
+                if (wc == null)
+                {
+                    Debug.LogError("[SexShooter.Dev] WeaponController not found in Dev.prefab.");
+                    return;
+                }
+
+                var so = new SerializedObject(wc);
+                var settings = so.FindProperty("settings");
+                settings.FindPropertyRelative("inventorySize").intValue = 3;
+                var iw = settings.FindPropertyRelative("initialWeapons");
+                iw.arraySize = 3;
+                iw.GetArrayElementAtIndex(0).objectReferenceValue = pistol;
+                iw.GetArrayElementAtIndex(1).objectReferenceValue = rifle;
+                iw.GetArrayElementAtIndex(2).objectReferenceValue = shotgun;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, DevPrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        private static void WirePickupSpawner()
+        {
+            var bullet = AssetDatabase.LoadAssetAtPath<GameObject>(BulletPickupPath);
+            var health = AssetDatabase.LoadAssetAtPath<GameObject>(HealthPickupPath);
+
+            var root = PrefabUtility.LoadPrefabContents(DevPrefabPath);
+            try
+            {
+                var session = root.transform.Find("Session");
+                if (session == null)
+                {
+                    Debug.LogError("[SexShooter.Dev] Session missing in Dev.prefab.");
+                    return;
+                }
+
+                var pickup = session.GetComponent<PickupSpawner>();
+                if (pickup == null) pickup = session.gameObject.AddComponent<PickupSpawner>();
+
+                var so = new SerializedObject(pickup);
+                so.FindProperty("minDistanceFromPlayer").floatValue = 5f;
+                so.FindProperty("minSeparation").floatValue = 3f;
+                so.FindProperty("clearanceRadius").floatValue = 0.5f;
+                so.FindProperty("groundMask").intValue = (1 << 0) | (1 << 3) | (1 << 8);
+                so.FindProperty("blockageMask").intValue = (1 << 0) | (1 << 3) | (1 << 7) | (1 << 8);
+
+                var entries = so.FindProperty("entries");
+                entries.arraySize = 0;
+                void AddEntry(GameObject prefab, int count)
+                {
+                    if (prefab == null) return;
+                    int i = entries.arraySize;
+                    entries.arraySize = i + 1;
+                    var e = entries.GetArrayElementAtIndex(i);
+                    e.FindPropertyRelative("prefab").objectReferenceValue = prefab;
+                    e.FindPropertyRelative("count").intValue = count;
+                }
+                AddEntry(bullet, 10);
+                AddEntry(health, 4);
+
+                // Reuse enemy spawn points as fallbacks when random ground fails.
+                var markers = session.Find("EnemySpawnPoints");
+                var fallback = so.FindProperty("fallbackSpawnPoints");
+                if (markers != null)
+                {
+                    fallback.arraySize = markers.childCount;
+                    for (int i = 0; i < markers.childCount; i++)
+                        fallback.GetArrayElementAtIndex(i).objectReferenceValue = markers.GetChild(i);
+                }
+
+                so.ApplyModifiedPropertiesWithoutUndo();
+
+                var ctrl = session.GetComponent<GameSessionController>();
+                if (ctrl != null)
+                {
+                    var cso = new SerializedObject(ctrl);
+                    cso.FindProperty("pickupSpawner").objectReferenceValue = pickup;
+                    cso.ApplyModifiedPropertiesWithoutUndo();
+                }
+
+                PrefabUtility.SaveAsPrefabAsset(root, DevPrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        private static void WireSpawnVfx()
+        {
+            var spawnVfx = AssetDatabase.LoadAssetAtPath<GameObject>(SpawnVfxPath);
+            if (spawnVfx == null)
+            {
+                Debug.LogWarning("[SexShooter.Dev] Spawn VFX missing: " + SpawnVfxPath);
+                return;
+            }
+
+            var def = AssetDatabase.LoadAssetAtPath<EnemyDefinition>(DefinitionPath);
+            if (def == null)
+            {
+                Debug.LogWarning("[SexShooter.Dev] EnemyDefinition missing: " + DefinitionPath);
+                return;
+            }
+
+            var so = new SerializedObject(def);
+            so.FindProperty("_spawnVfxPrefab").objectReferenceValue = spawnVfx;
+            var scale = so.FindProperty("_spawnVfxScale");
+            if (scale != null) scale.floatValue = 9f;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(def);
         }
 
         private static void WireDefinitionToEnemy(GameObject enemyPrefab, EnemyDefinition definition)

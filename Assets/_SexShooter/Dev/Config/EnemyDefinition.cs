@@ -44,6 +44,7 @@ namespace SexShooter.Dev
         [SerializeField] private AudioClip _spawnSound;
         [SerializeField] private float _spawnSoundVolume = 1f;
         [SerializeField] private GameObject _spawnVfxPrefab;
+        [SerializeField] private float _spawnVfxScale = 9f;
 
         public string DisplayName => _displayName;
         public float MaxHealth => _maxHealth;
@@ -71,5 +72,6 @@ namespace SexShooter.Dev
         public AudioClip SpawnSound => _spawnSound;
         public float SpawnSoundVolume => Mathf.Clamp01(_spawnSoundVolume);
         public GameObject SpawnVfxPrefab => _spawnVfxPrefab;
+        public float SpawnVfxScale => Mathf.Max(0.01f, _spawnVfxScale);
     }
 }

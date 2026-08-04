@@ -11,6 +11,7 @@ namespace SexShooter.Dev
     {
         [SerializeField] private PlayerDependencies playerDependencies;
         [SerializeField] private EnemyWaveSpawner spawner;
+        [SerializeField] private PickupSpawner pickupSpawner;
         [SerializeField] private Transform playerSpawn;
         [SerializeField] private bool pauseOnDeath = true;
         [SerializeField] private AudioClip backgroundMusic;
@@ -48,6 +49,9 @@ namespace SexShooter.Dev
 
             playerStats.AddOnDieListener(OnPlayerDied);
             StartMusic();
+
+            if (pickupSpawner != null)
+                pickupSpawner.Begin(playerStats.transform);
 
             if (spawner != null)
                 spawner.Begin(playerStats.transform);

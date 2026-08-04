@@ -134,7 +134,7 @@ namespace SexShooter.Dev
             if (dir.sqrMagnitude < 0.001f) dir = transform.forward;
 
             if (definition != null && definition.AttackSound != null)
-                AudioSource.PlayClipAtPoint(definition.AttackSound, origin, definition.AttackSoundVolume);
+                EnemySfx.Play3D(definition.AttackSound, origin, definition.AttackSoundVolume);
 
             if (definition != null && definition.MuzzleFlashPrefab != null)
             {
@@ -199,21 +199,7 @@ namespace SexShooter.Dev
         {
             var clip = DeathSound;
             if (clip == null) return;
-
-            // 2D one-shot at the listener — PlayClipAtPoint is 3D and dies in large levels.
-            var listener = Camera.main != null ? Camera.main.transform : null;
-            Vector3 pos = listener != null
-                ? listener.position
-                : transform.position + Vector3.up * AimHeight;
-
-            var go = new GameObject("SuccubusDeathSFX");
-            go.transform.position = pos;
-            var src = go.AddComponent<AudioSource>();
-            src.clip = clip;
-            src.spatialBlend = 0f;
-            src.volume = 1f;
-            src.Play();
-            UnityEngine.Object.Destroy(go, clip.length + 0.15f);
+            EnemySfx.Play3D(clip, transform.position + Vector3.up * AimHeight, 1f);
         }
 
         private void SpawnDeathGore()
