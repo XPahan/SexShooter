@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SexShooter.Dev
 {
     /// <summary>
-    /// Wave spawner. Prefers authored World/Spawn_Points, then serialized fallbacks.
+    /// Wave spawner. Uses only Inspector-assigned spawn points.
     /// </summary>
     public class EnemyWaveSpawner : MonoBehaviour
     {
@@ -24,16 +24,12 @@ namespace SexShooter.Dev
         [SerializeField] private float minSeparation = 2f;
         [SerializeField] private float clearanceRadius = 1f;
         [SerializeField] private float capsuleHeight = 2f;
-        [SerializeField] private LayerMask groundMask;
         [SerializeField] private LayerMask blockageMask;
-        [Tooltip("Optional. Scene World/Spawn_Points children are auto-collected at runtime.")]
-        [SerializeField] private Transform[] fallbackSpawnPoints;
-        [SerializeField] private string worldSpawnPointsRootName = "Spawn_Points";
-        [SerializeField] private bool useRandomGroundFallback = true;
+        [Tooltip("Assign World/Spawn_Points children here.")]
+        [SerializeField] private Transform[] spawnPoints;
 
         private Transform player;
         private readonly List<SuccubusEnemy> alive = new List<SuccubusEnemy>();
-        private readonly List<Transform> spawnPoints = new List<Transform>();
         private float nextSpawnTime;
         private bool running;
 
@@ -49,9 +45,12 @@ namespace SexShooter.Dev
         public void Begin(Transform playerTransform)
         {
             player = playerTransform;
-            CollectSpawnPoints();
             running = true;
             nextSpawnTime = Time.time + spawnInterval;
+
+            int pointCount = CountAssignedSpawnPoints();
+            if (pointCount == 0)
+                Debug.LogWarning("[EnemyWaveSpawner] No spawn points assigned in Inspector.");
 
             int toSpawn = Mathf.Min(initialCount, maxAlive);
             int attempts = 0;
@@ -65,36 +64,13 @@ namespace SexShooter.Dev
 
         public void StopSpawning() => running = false;
 
-        private void CollectSpawnPoints()
+        private int CountAssignedSpawnPoints()
         {
-            spawnPoints.Clear();
-
-            // Level-designer points under World/Spawn_Points (or any object with that name).
-            var roots = FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-            for (int i = 0; i < roots.Length; i++)
-            {
-                var t = roots[i];
-                if (t == null || t.name != worldSpawnPointsRootName) continue;
-                for (int c = 0; c < t.childCount; c++)
-                {
-                    var child = t.GetChild(c);
-                    if (child != null && child.gameObject.activeInHierarchy)
-                        spawnPoints.Add(child);
-                }
-            }
-
-            if (fallbackSpawnPoints != null)
-            {
-                for (int i = 0; i < fallbackSpawnPoints.Length; i++)
-                {
-                    var t = fallbackSpawnPoints[i];
-                    if (t == null) continue;
-                    if (!spawnPoints.Contains(t))
-                        spawnPoints.Add(t);
-                }
-            }
-
-            Debug.Log("[EnemyWaveSpawner] Spawn points: " + spawnPoints.Count);
+            if (spawnPoints == null) return 0;
+            int count = 0;
+            for (int i = 0; i < spawnPoints.Length; i++)
+                if (spawnPoints[i] != null) count++;
+            return count;
         }
 
         private void Update()
@@ -142,7 +118,7 @@ namespace SexShooter.Dev
         {
             var prefab = PickPrefab();
             if (prefab == null || player == null) return;
-            if (!TryFindSpawnPoint(out Vector3 pos)) return;
+            if (!TryPickFromSpawnPoints(out Vector3 pos)) return;
 
             var enemy = Instantiate(prefab, pos, Quaternion.identity);
             var brain = enemy.GetComponent<SuccubusBrain>();
@@ -203,46 +179,12 @@ namespace SexShooter.Dev
             Object.Destroy(vfx, 4f);
         }
 
-        private bool TryFindSpawnPoint(out Vector3 result)
-        {
-            result = Vector3.zero;
-
-            if (spawnPoints.Count > 0 && TryPickFromSpawnPoints(out result))
-            {
-                // Slight jitter so the same authored point can host multiple enemies.
-                Vector2 jitter = Random.insideUnitCircle * 1.25f;
-                result += new Vector3(jitter.x, 0f, jitter.y);
-                return true;
-            }
-
-            if (!useRandomGroundFallback)
-                return false;
-
-            for (int attempt = 0; attempt < 24; attempt++)
-            {
-                Vector2 ring = Random.insideUnitCircle.normalized *
-                               Random.Range(minDistanceFromPlayer, minDistanceFromPlayer + 12f);
-                Vector3 probe = player.position + new Vector3(ring.x, 20f, ring.y);
-                if (!Physics.Raycast(probe, Vector3.down, out RaycastHit hit, 60f, groundMask))
-                    continue;
-
-                if (!IsClear(hit.point)) continue;
-                if (Vector3.Distance(hit.point, player.position) < minDistanceFromPlayer) continue;
-                if (!HasSeparation(hit.point)) continue;
-
-                result = hit.point;
-                return true;
-            }
-
-            return false;
-        }
-
         private bool TryPickFromSpawnPoints(out Vector3 result)
         {
             result = Vector3.zero;
+            if (spawnPoints == null || spawnPoints.Length == 0) return false;
 
-            // Shuffle indices so waves don't always fill the same order.
-            int count = spawnPoints.Count;
+            int count = spawnPoints.Length;
             var order = new int[count];
             for (int i = 0; i < count; i++) order[i] = i;
             for (int i = count - 1; i > 0; i--)
@@ -253,15 +195,10 @@ namespace SexShooter.Dev
                 order[j] = tmp;
             }
 
-            // Pass 1: far enough from player + clear + separated
             if (TryPickPass(order, requireMinDistance: true, requireClear: true, out result))
                 return true;
-
-            // Pass 2: authored points may sit near start — still spawn if clear + separated
             if (TryPickPass(order, requireMinDistance: false, requireClear: true, out result))
                 return true;
-
-            // Pass 3: last resort — any separated authored point
             return TryPickPass(order, requireMinDistance: false, requireClear: false, out result);
         }
 
