@@ -1,0 +1,16 @@
+# Blender MTL File: 'DemonGirl_Upgrade_Stage3.blend'
+# Material Count: 1
+
+newmtl Skin_Material
+Ns 220.927690
+Ka 1.000000 1.000000 1.000000
+Kd 0.035218 0.001600 0.000602
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\User\\Desktop\\GameDev\\BlenderArtWorks\\Products\\DemonGirl\\Textures\\Normal Map 4096 DemonGirl.png
+map_Kd C:\\Users\\User\\Desktop\\GameDev\\BlenderArtWorks\\Products\\DemonGirl\\Fixed Textures\\Color Comb Emit 3 4096 DemonGirl.png
+map_Ns C:\\Users\\User\\Desktop\\GameDev\\BlenderArtWorks\\Products\\DemonGirl\\Textures\\Roughness Comb 4096 DemonGirl.png
+refl C:\\Users\\User\\Desktop\\GameDev\\BlenderArtWorks\\Products\\DemonGirl\\Textures\\Metallic Comb 4096 DemonGirl.png

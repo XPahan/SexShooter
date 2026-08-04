@@ -1,0 +1,207 @@
+using UnityEngine;
+
+namespace SexShooter.Dev
+{
+    /// <summary>
+    /// Chase player, stop in range, fire projectiles. Port of AdultShooter EnemyBrain.
+    /// Stats/death VFX come from EnemyDefinition when assigned.
+    /// </summary>
+    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(SuccubusEnemy))]
+    public class SuccubusBrain : MonoBehaviour
+    {
+        [Header("Config")]
+        [SerializeField] private EnemyDefinition definition;
+
+        [Header("Fallback Movement (if no SO)")]
+        [SerializeField] private float moveSpeed = 2.5f;
+        [SerializeField] private float turnSpeed = 8f;
+        [SerializeField] private float gravity = -20f;
+
+        [Header("Fallback Combat (if no SO)")]
+        [SerializeField] private float attackRange = 20f;
+        [SerializeField] private float attackCooldown = 2f;
+        [SerializeField] private float aimHeight = 1.2f;
+        [SerializeField] private float projectileSpeed = 10f;
+        [SerializeField] private float projectileDamage = 2f;
+        [SerializeField] private float projectileLifetime = 5f;
+        [SerializeField] private Transform muzzle;
+        [SerializeField] private SuccubusProjectile projectilePrefab;
+
+        [Header("Fallback Death (if no SO)")]
+        [SerializeField] private GameObject deathGorePrefab;
+        [SerializeField] private float deathGoreScale = 1f;
+        [SerializeField] private AudioClip deathSound;
+        [SerializeField] private float deathSoundVolume = 6f;
+
+        [Header("Animation")]
+        [SerializeField] private Animator animator;
+        [SerializeField] private string speedParam = "Speed";
+        [SerializeField] private string attackTrigger = "Attack";
+        [SerializeField] private string hitTrigger = "Hit";
+
+        private CharacterController controller;
+        private SuccubusEnemy enemy;
+        private Transform player;
+        private float verticalVelocity;
+        private float nextAttackTime;
+        private bool dead;
+
+        public EnemyDefinition Definition => definition;
+
+        public void SetPlayer(Transform playerTransform) => player = playerTransform;
+
+        public void SetDefinition(EnemyDefinition def) => definition = def;
+
+        private float MoveSpeed => definition != null ? definition.MoveSpeed : moveSpeed;
+        private float TurnSpeed => definition != null ? definition.TurnSpeed : turnSpeed;
+        private float Gravity => definition != null ? definition.Gravity : gravity;
+        private float AttackRange => definition != null ? definition.AttackRange : attackRange;
+        private float AttackCooldown => definition != null ? definition.AttackCooldown : attackCooldown;
+        private float AimHeight => definition != null ? definition.AimHeight : aimHeight;
+        private float ProjectileSpeed => definition != null ? definition.ProjectileSpeed : projectileSpeed;
+        private float ProjectileDamage => definition != null ? definition.ProjectileDamage : projectileDamage;
+        private float ProjectileLifetime => definition != null ? definition.ProjectileLifetime : projectileLifetime;
+        private SuccubusProjectile ProjectilePrefab =>
+            definition != null && definition.ProjectilePrefab != null ? definition.ProjectilePrefab : projectilePrefab;
+        private GameObject DeathGorePrefab =>
+            definition != null && definition.DeathGorePrefab != null ? definition.DeathGorePrefab : deathGorePrefab;
+        private float DeathGoreScale => definition != null ? definition.DeathGoreScale : deathGoreScale;
+        private AudioClip DeathSound => definition != null ? definition.DeathSound : deathSound;
+        private float DeathSoundVolume => definition != null ? definition.DeathSoundVolume : deathSoundVolume;
+
+        private void Awake()
+        {
+            controller = GetComponent<CharacterController>();
+            enemy = GetComponent<SuccubusEnemy>();
+            if (animator == null) animator = GetComponentInChildren<Animator>();
+            if (muzzle == null)
+            {
+                var m = transform.Find("Muzzle");
+                if (m != null) muzzle = m;
+            }
+        }
+
+        private void Update()
+        {
+            if (dead || enemy.IsDead || player == null) return;
+            if (enemy.IsStaggered)
+            {
+                ApplyGravityOnly();
+                SetAnimSpeed(0f);
+                return;
+            }
+
+            Vector3 toPlayer = player.position - transform.position;
+            toPlayer.y = 0f;
+            float distance = toPlayer.magnitude;
+
+            if (distance > 0.01f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(toPlayer.normalized);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, TurnSpeed * Time.deltaTime);
+            }
+
+            if (distance > AttackRange)
+            {
+                Vector3 move = toPlayer.normalized * MoveSpeed;
+                Move(move);
+                SetAnimSpeed(MoveSpeed);
+            }
+            else
+            {
+                ApplyGravityOnly();
+                SetAnimSpeed(0f);
+                TryAttack();
+            }
+        }
+
+        private void TryAttack()
+        {
+            var prefab = ProjectilePrefab;
+            if (Time.time < nextAttackTime || prefab == null) return;
+            nextAttackTime = Time.time + AttackCooldown;
+
+            if (animator != null && !string.IsNullOrEmpty(attackTrigger))
+                animator.SetTrigger(attackTrigger);
+
+            if (definition != null && definition.AttackSound != null)
+                AudioSource.PlayClipAtPoint(definition.AttackSound, transform.position, definition.AttackSoundVolume);
+
+            Vector3 origin = muzzle != null
+                ? muzzle.position
+                : transform.position + Vector3.up * AimHeight;
+
+            Vector3 target = player.position + Vector3.up * AimHeight;
+            Vector3 dir = (target - origin).normalized;
+            if (dir.sqrMagnitude < 0.001f) dir = transform.forward;
+
+            var bolt = Instantiate(prefab, origin, Quaternion.LookRotation(dir));
+            bolt.Launch(dir, ProjectileSpeed, ProjectileDamage, ProjectileLifetime);
+        }
+
+        private void Move(Vector3 horizontal)
+        {
+            if (controller.isGrounded && verticalVelocity < 0f) verticalVelocity = -2f;
+            verticalVelocity += Gravity * Time.deltaTime;
+            Vector3 velocity = horizontal + Vector3.up * verticalVelocity;
+            controller.Move(velocity * Time.deltaTime);
+        }
+
+        private void ApplyGravityOnly() => Move(Vector3.zero);
+
+        private void SetAnimSpeed(float speed)
+        {
+            if (animator != null && !string.IsNullOrEmpty(speedParam))
+                animator.SetFloat(speedParam, speed);
+        }
+
+        public void NotifyHit()
+        {
+            if (dead) return;
+            if (animator != null && !string.IsNullOrEmpty(hitTrigger))
+                animator.SetTrigger(hitTrigger);
+        }
+
+        public void NotifyDeath()
+        {
+            if (dead) return;
+            dead = true;
+
+            if (controller != null) controller.enabled = false;
+            var col = GetComponent<Collider>();
+            if (col != null) col.enabled = false;
+            SetAnimSpeed(0f);
+
+            HideModel();
+            PlayDeathSound();
+            SpawnDeathGore();
+        }
+
+        private void HideModel()
+        {
+            var model = transform.Find("Model");
+            var root = model != null ? model : transform;
+            var renderers = root.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+                renderers[i].enabled = false;
+        }
+
+        private void PlayDeathSound()
+        {
+            var clip = DeathSound;
+            if (clip == null) return;
+            AudioSource.PlayClipAtPoint(clip, transform.position, DeathSoundVolume);
+        }
+
+        private void SpawnDeathGore()
+        {
+            var gorePrefab = DeathGorePrefab;
+            if (gorePrefab == null) return;
+
+            Vector3 spawnPosition = transform.position + Vector3.up * AimHeight;
+            var gore = Instantiate(gorePrefab, spawnPosition, Quaternion.identity);
+            gore.transform.localScale = Vector3.one * DeathGoreScale;
+        }
+    }
+}
