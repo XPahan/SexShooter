@@ -624,27 +624,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5744522209727131499, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_text
-      value: "\u0421"
+      value: C
       objectReference: {fileID: 0}
     - target: {fileID: 5744522209998777806, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_text
-      value: "\u0415"
+      value: T
       objectReference: {fileID: 0}
     - target: {fileID: 5744522210009943445, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_text
-      value: "\u041F"
+      value: G
       objectReference: {fileID: 0}
     - target: {fileID: 5744522210308561177, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_text
-      value: "\u0423"
+      value: E
       objectReference: {fileID: 0}
     - target: {fileID: 5744522211208671362, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_text
-      value: "\u0410"
+      value: F
       objectReference: {fileID: 0}
     - target: {fileID: 5744522211254292958, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_text
-      value: "\u0428"
+      value: I
       objectReference: {fileID: 0}
     - target: {fileID: 6437889092282678427, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_Cameras.Array.size
@@ -951,7 +951,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4788863507091020780, guid: 231461d17abfcdf439fa0418137c3556, type: 3}
       propertyPath: uniqueID
-      value: cf651afb-acf3-4e28-a724-7e71047f2155
+      value: 7c7dc440-43fd-47b6-84f0-c9c9687d70fa
       objectReference: {fileID: 0}
     - target: {fileID: 4788863507091020781, guid: 231461d17abfcdf439fa0418137c3556, type: 3}
       propertyPath: m_LocalPosition.x
