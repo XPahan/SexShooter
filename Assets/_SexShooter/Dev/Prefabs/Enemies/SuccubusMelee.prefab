@@ -110,7 +110,7 @@ MonoBehaviour:
   shieldBar: {fileID: 0}
   showUI: 0
   showDamagePopUps: 0
-  showKillFeed: 1
+  showKillFeed: 0
   dieSFX: {fileID: 0}
   events:
     OnSpawn:

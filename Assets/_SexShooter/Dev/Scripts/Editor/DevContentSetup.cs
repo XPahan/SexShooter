@@ -331,7 +331,7 @@ namespace SexShooter.Dev.Editor
             healthSO.FindProperty("maxShield").floatValue = 0f;
             healthSO.FindProperty("destroyOnDie").boolValue = true;
             healthSO.FindProperty("_name").stringValue = "Succubus";
-            healthSO.FindProperty("showKillFeed").boolValue = true;
+            healthSO.FindProperty("showKillFeed").boolValue = false;
             healthSO.FindProperty("showUI").boolValue = false;
             healthSO.ApplyModifiedPropertiesWithoutUndo();
 
@@ -766,7 +766,7 @@ namespace SexShooter.Dev.Editor
             healthSO.FindProperty("maxShield").floatValue = 0f;
             healthSO.FindProperty("destroyOnDie").boolValue = true;
             healthSO.FindProperty("_name").stringValue = "Succubus Melee";
-            healthSO.FindProperty("showKillFeed").boolValue = true;
+            healthSO.FindProperty("showKillFeed").boolValue = false;
             healthSO.FindProperty("showUI").boolValue = false;
             healthSO.ApplyModifiedPropertiesWithoutUndo();
 
