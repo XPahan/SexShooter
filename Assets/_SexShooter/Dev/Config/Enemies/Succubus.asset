@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9d856d1c135ede42a65b6921e08cc4b, type: 3}
+  m_Name: Succubus
+  m_EditorClassIdentifier: 
+  _displayName: Succubus
+  _maxHealth: 3
+  _staggerDuration: 0.35
+  _moveSpeed: 2.5
+  _turnSpeed: 8
+  _gravity: -20
+  _attackRange: 20
+  _attackCooldown: 2
+  _projectileDamage: 2
+  _projectileSpeed: 10
+  _projectileLifetime: 5
+  _aimHeight: 1.2
+  _projectilePrefab: {fileID: 3421225486283509612, guid: d338f3cb502098b4ca05621110e16671, type: 3}
+  _deathDespawnDelay: 0.05
+  _deathGorePrefab: {fileID: 4242828237219237886, guid: b51961f29e186af458ec9bd6227ffc27, type: 3}
+  _deathGoreScale: 1
+  _deathSound: {fileID: 8300000, guid: b22471d11d5e4d64e81f765ff50c1710, type: 3}
+  _deathSoundVolume: 6
+  _attackSound: {fileID: 0}
+  _attackSoundVolume: 1

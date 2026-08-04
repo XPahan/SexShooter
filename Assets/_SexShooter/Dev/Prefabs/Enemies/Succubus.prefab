@@ -1,0 +1,292 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &692990732515283418
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7154787299513078908}
+  - component: {fileID: 4644540573631436830}
+  - component: {fileID: 614483466655279085}
+  - component: {fileID: 7750690345134141066}
+  - component: {fileID: 7014819841677397875}
+  m_Layer: 7
+  m_Name: Succubus
+  m_TagString: Enemy
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7154787299513078908
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692990732515283418}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 5689351870940094616}
+  - {fileID: 5032471495150362544}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &4644540573631436830
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692990732515283418}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2.3
+  m_Radius: 0.35
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1.15, z: 0}
+--- !u!136 &614483466655279085
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692990732515283418}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.35
+  m_Height: 2.3
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.15, z: 0}
+--- !u!114 &7750690345134141066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692990732515283418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39b3db4d34936424a803a69d552ff2e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: d81f5892-9d54-4839-934a-277a2e612435
+  _name: Succubus
+  health: 0
+  shield: 0
+  maxHealth: 3
+  maxShield: 0
+  destroyOnDie: 1
+  destroyComponentOnDie: 0
+  deathEffect: {fileID: 0}
+  enemyStatusContainer: {fileID: 0}
+  healthBar: {fileID: 0}
+  shieldBar: {fileID: 0}
+  showUI: 0
+  showDamagePopUps: 0
+  showKillFeed: 1
+  dieSFX: {fileID: 0}
+  events:
+    OnSpawn:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDamaged:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDeath:
+      m_PersistentCalls:
+        m_Calls: []
+  staggerDuration: 0.35
+--- !u!114 &7014819841677397875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692990732515283418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66ddb43abe8c7fa43b35fb0e59b38530, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  definition: {fileID: 11400000, guid: 1ce117fb496ce004ebe88301913ccc48, type: 2}
+  moveSpeed: 2.5
+  turnSpeed: 8
+  gravity: -20
+  attackRange: 20
+  attackCooldown: 2
+  aimHeight: 1.2
+  projectileSpeed: 10
+  projectileDamage: 2
+  projectileLifetime: 5
+  muzzle: {fileID: 5032471495150362544}
+  projectilePrefab: {fileID: 3421225486283509612, guid: d338f3cb502098b4ca05621110e16671, type: 3}
+  deathGorePrefab: {fileID: 4242828237219237886, guid: b51961f29e186af458ec9bd6227ffc27, type: 3}
+  deathGoreScale: 1
+  deathSound: {fileID: 8300000, guid: b22471d11d5e4d64e81f765ff50c1710, type: 3}
+  deathSoundVolume: 6
+  animator: {fileID: 9055117150896100382}
+  speedParam: Speed
+  attackTrigger: Attack
+  hitTrigger: Hit
+--- !u!1 &4956323949672580535
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5032471495150362544}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5032471495150362544
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956323949672580535}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.2, y: 1.2, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7154787299513078908}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &7298706790109451588
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7154787299513078908}
+    m_Modifications:
+    - target: {fileID: 1195856776473667205, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.006598901
+      objectReference: {fileID: 0}
+    - target: {fileID: 1195856776473667205, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.0077180862
+      objectReference: {fileID: 0}
+    - target: {fileID: 1267588604176610863, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.006598868
+      objectReference: {fileID: 0}
+    - target: {fileID: 1267588604176610863, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.0077180564
+      objectReference: {fileID: 0}
+    - target: {fileID: 1792443875827188058, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: fed3b0ffc49acb74fa9d7bc3876ad681, type: 2}
+    - target: {fileID: 2374880147218263910, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_Name
+      value: Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+--- !u!4 &5689351870940094616 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3152119816997975516, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+  m_PrefabInstance: {fileID: 7298706790109451588}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &9055117150896100382 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 1792443875827188058, guid: 47e17575155370a4386c0bf76c7071c5, type: 3}
+  m_PrefabInstance: {fileID: 7298706790109451588}
+  m_PrefabAsset: {fileID: 0}
