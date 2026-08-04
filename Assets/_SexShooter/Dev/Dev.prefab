@@ -114,6 +114,8 @@ MonoBehaviour:
   spawner: {fileID: 1635962338729000621}
   playerSpawn: {fileID: 2122821004102050166}
   pauseOnDeath: 1
+  backgroundMusic: {fileID: 8300000, guid: 5b557a70923944bbe88e0c3f7bf6a78a, type: 3}
+  backgroundMusicVolume: 0.35
 --- !u!1 &2550195168464858850
 GameObject:
   m_ObjectHideFlags: 0
@@ -701,7 +703,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3255287944527359929, guid: 4c84ebb28079cc744878500361251fd4, type: 3}
       propertyPath: uniqueID
-      value: ba4ce4e2-9421-45a8-b38e-73498f5297a4
+      value: 24091c8c-0bbf-4116-89c2-95dd8de29420
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -763,7 +765,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 39021870808220805, guid: 59f209a6517268e4c899fed4b1697440, type: 3}
       propertyPath: uniqueID
-      value: fe4a5078-f105-43a4-b13a-798e8c9540c6
+      value: 629f592e-ae8a-4e6d-9593-70c253ec5605
       objectReference: {fileID: 0}
     - target: {fileID: 39021870808220807, guid: 59f209a6517268e4c899fed4b1697440, type: 3}
       propertyPath: m_Name
@@ -789,7 +791,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3428643961104354709, guid: 1d08260f365dfbf4e8ea905112f1419a, type: 3}
       propertyPath: uniqueID
-      value: f533c545-c672-4a64-b8f0-f25782b2d4ca
+      value: f0908f7a-a510-47d7-9922-bd946158bf89
       objectReference: {fileID: 0}
     - target: {fileID: 3428643961104354710, guid: 1d08260f365dfbf4e8ea905112f1419a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -859,7 +861,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4788863507091020780, guid: 231461d17abfcdf439fa0418137c3556, type: 3}
       propertyPath: uniqueID
-      value: 327231da-3eba-4d6d-ab5b-7f398f550a84
+      value: da99fd3a-aa18-432c-9a24-41176e406bb5
       objectReference: {fileID: 0}
     - target: {fileID: 4788863507091020781, guid: 231461d17abfcdf439fa0418137c3556, type: 3}
       propertyPath: m_LocalPosition.x
@@ -961,7 +963,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2161176229785408046, guid: e996cba7e26958941959a9058c0a8811, type: 3}
       propertyPath: uniqueID
-      value: bc91e3c9-f26c-4335-8bf4-b39432c15245
+      value: 4c9b387b-0d17-447d-b979-fa17c746afae
       objectReference: {fileID: 0}
     - target: {fileID: 2161176229785408047, guid: e996cba7e26958941959a9058c0a8811, type: 3}
       propertyPath: m_Name
