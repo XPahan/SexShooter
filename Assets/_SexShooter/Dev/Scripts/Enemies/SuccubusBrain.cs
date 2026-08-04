@@ -21,6 +21,7 @@ namespace SexShooter.Dev
 
         [Header("Fallback Combat (if no SO)")]
         [SerializeField] private float attackRange = 20f;
+        [SerializeField] private float visionRange = 40f;
         [SerializeField] private float attackCooldown = 2f;
         [SerializeField] private float aimHeight = 1.2f;
         [SerializeField] private float projectileSpeed = 10f;
@@ -29,6 +30,7 @@ namespace SexShooter.Dev
         [SerializeField] private float meleeDamage = 2f;
         [SerializeField] private float meleeHitDelay = 0.4f;
         [SerializeField] private float meleeHitRadius = 1.8f;
+        [SerializeField] private LayerMask losMask = ~0;
         [SerializeField] private Transform muzzle;
         [SerializeField] private SuccubusProjectile projectilePrefab;
 
@@ -51,8 +53,10 @@ namespace SexShooter.Dev
         private float nextAttackTime;
         private bool dead;
         private bool attackInProgress;
+        private bool aggroed;
         private int hitLayerIndex = -1;
         private Coroutine meleeRoutine;
+        private readonly RaycastHit[] losHits = new RaycastHit[8];
 
         public EnemyDefinition Definition => definition;
 
@@ -65,6 +69,7 @@ namespace SexShooter.Dev
         private float TurnSpeed => definition != null ? definition.TurnSpeed : turnSpeed;
         private float Gravity => definition != null ? definition.Gravity : gravity;
         private float AttackRange => definition != null ? definition.AttackRange : attackRange;
+        private float VisionRange => definition != null ? definition.VisionRange : visionRange;
         private float AttackCooldown => definition != null ? definition.AttackCooldown : attackCooldown;
         private float AimHeight => definition != null ? definition.AimHeight : aimHeight;
         private float ProjectileSpeed => definition != null ? definition.ProjectileSpeed : projectileSpeed;
@@ -128,6 +133,17 @@ namespace SexShooter.Dev
             Vector3 toPlayer = player.position - transform.position;
             toPlayer.y = 0f;
             float distance = toPlayer.magnitude;
+            bool canSee = CanSeePlayer(distance);
+
+            if (!aggroed && canSee)
+                aggroed = true;
+
+            if (!aggroed)
+            {
+                ApplyGravityOnly();
+                SetAnimSpeed(0f);
+                return;
+            }
 
             if (distance > 0.01f)
             {
@@ -152,8 +168,52 @@ namespace SexShooter.Dev
             {
                 ApplyGravityOnly();
                 SetAnimSpeed(0f);
-                TryAttack();
+                if (canSee)
+                    TryAttack();
             }
+        }
+
+        private bool CanSeePlayer(float flatDistance)
+        {
+            if (player == null) return false;
+            float maxRange = Mathf.Max(VisionRange, AttackRange);
+            if (flatDistance > maxRange) return false;
+
+            Vector3 origin = transform.position + Vector3.up * AimHeight;
+            Vector3 target = player.position + Vector3.up * AimHeight;
+            Vector3 delta = target - origin;
+            float dist = delta.magnitude;
+            if (dist < 0.05f) return true;
+
+            Vector3 dir = delta / dist;
+            int count = Physics.RaycastNonAlloc(
+                origin, dir, losHits, dist, losMask, QueryTriggerInteraction.Ignore);
+
+            float nearest = float.MaxValue;
+            Collider nearestCol = null;
+            for (int i = 0; i < count; i++)
+            {
+                var col = losHits[i].collider;
+                if (col == null) continue;
+                if (col.transform == transform || col.transform.IsChildOf(transform))
+                    continue;
+
+                float d = losHits[i].distance;
+                if (d < nearest)
+                {
+                    nearest = d;
+                    nearestCol = col;
+                }
+            }
+
+            if (nearestCol == null) return true;
+            return IsPlayerCollider(nearestCol);
+        }
+
+        private static bool IsPlayerCollider(Collider col)
+        {
+            if (col.GetComponentInParent<PlayerStats>() != null) return true;
+            return col.CompareTag("Player");
         }
 
         private void TryAttack()
@@ -277,6 +337,7 @@ namespace SexShooter.Dev
 
         public void NotifyHit()
         {
+            aggroed = true;
             if (dead || animator == null || string.IsNullOrEmpty(hitTrigger)) return;
             if (hitLayerIndex >= 0)
                 animator.SetLayerWeight(hitLayerIndex, 1f);
