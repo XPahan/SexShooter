@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 3001605372589172160}
   - component: {fileID: 1635962338729000621}
   - component: {fileID: 5055917374290722288}
+  - component: {fileID: 6259698414084153681}
   m_Layer: 0
   m_Name: Session
   m_TagString: Untagged
@@ -78,6 +79,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 7750690345134141066, guid: 9e9ce32d14ca41642a633a0c79004cbc, type: 3}
+  enemyEntries:
+  - prefab: {fileID: 7750690345134141066, guid: 9e9ce32d14ca41642a633a0c79004cbc, type: 3}
+    weight: 1
+  - prefab: {fileID: 4001857357248954327, guid: 56e8de6256aad384cb69b60a300edc69, type: 3}
+    weight: 1
   initialCount: 8
   maxAlive: 15
   spawnInterval: 3
@@ -98,6 +104,8 @@ MonoBehaviour:
   - {fileID: 6387762143261253622}
   - {fileID: 4633291525530655752}
   - {fileID: 8862384594507281886}
+  worldSpawnPointsRootName: Spawn_Points
+  useRandomGroundFallback: 0
 --- !u!114 &5055917374290722288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,10 +120,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerDependencies: {fileID: 0}
   spawner: {fileID: 1635962338729000621}
+  pickupSpawner: {fileID: 6259698414084153681}
   playerSpawn: {fileID: 2122821004102050166}
   pauseOnDeath: 1
   backgroundMusic: {fileID: 8300000, guid: 5b557a70923944bbe88e0c3f7bf6a78a, type: 3}
   backgroundMusicVolume: 0.35
+--- !u!114 &6259698414084153681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2242099681206587296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 059aac59a8917eb40a885f62c6b1736f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - prefab: {fileID: 4788863507091020778, guid: 231461d17abfcdf439fa0418137c3556, type: 3}
+    count: 10
+  - prefab: {fileID: 4661580056157770393, guid: 6bb79ad200cd1d34d9cc6c5c1fe54098, type: 3}
+    count: 4
+  minDistanceFromPlayer: 5
+  minSeparation: 3
+  clearanceRadius: 0.5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 265
+  blockageMask:
+    serializedVersion: 2
+    m_Bits: 393
+  fallbackSpawnPoints:
+  - {fileID: 3958445483702602023}
+  - {fileID: 5358669617347409725}
+  - {fileID: 2321604625961760383}
+  - {fileID: 6387762143261253622}
+  - {fileID: 4633291525530655752}
+  - {fileID: 8862384594507281886}
 --- !u!1 &2550195168464858850
 GameObject:
   m_ObjectHideFlags: 0
@@ -556,6 +598,22 @@ PrefabInstance:
       propertyPath: settings.inventorySize
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 1195374612628124358, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: settings.initialWeapons.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1195374612628124358, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: 'settings.initialWeapons.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 907aa7bd70f532947bfa1d5f3ce12fa9, type: 2}
+    - target: {fileID: 1195374612628124358, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: 'settings.initialWeapons.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 6553d6d464f4c3d489647f8005b06c2e, type: 2}
+    - target: {fileID: 1195374612628124358, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: 'settings.initialWeapons.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 11986c1487b69b24fa433a76cf966fb5, type: 2}
     - target: {fileID: 1195374612628124382, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: playerSettings.whatIsGround.m_Bits
       value: 16281
@@ -563,6 +621,30 @@ PrefabInstance:
     - target: {fileID: 2915798134740467232, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_CameraType
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5744522209727131499, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: m_text
+      value: "\u0421"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5744522209998777806, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: m_text
+      value: "\u0415"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5744522210009943445, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: m_text
+      value: "\u041F"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5744522210308561177, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: m_text
+      value: "\u0423"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5744522211208671362, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: m_text
+      value: "\u0410"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5744522211254292958, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
+      propertyPath: m_text
+      value: "\u0428"
       objectReference: {fileID: 0}
     - target: {fileID: 6437889092282678427, guid: 8472a9cdac198684a9b2426ac2dd66c3, type: 3}
       propertyPath: m_Cameras.Array.size
@@ -703,7 +785,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3255287944527359929, guid: 4c84ebb28079cc744878500361251fd4, type: 3}
       propertyPath: uniqueID
-      value: 24091c8c-0bbf-4116-89c2-95dd8de29420
+      value: e4e8b3eb-36e7-4942-8389-d6513e91b5b3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -765,11 +847,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 39021870808220805, guid: 59f209a6517268e4c899fed4b1697440, type: 3}
       propertyPath: uniqueID
-      value: 629f592e-ae8a-4e6d-9593-70c253ec5605
+      value: 6bdee7bd-6e76-46f2-939e-5e8899433f57
       objectReference: {fileID: 0}
     - target: {fileID: 39021870808220807, guid: 59f209a6517268e4c899fed4b1697440, type: 3}
       propertyPath: m_Name
       value: Rifle Pickeable
+      objectReference: {fileID: 0}
+    - target: {fileID: 39021870808220807, guid: 59f209a6517268e4c899fed4b1697440, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -791,7 +877,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3428643961104354709, guid: 1d08260f365dfbf4e8ea905112f1419a, type: 3}
       propertyPath: uniqueID
-      value: f0908f7a-a510-47d7-9922-bd946158bf89
+      value: 0a5087b5-9d64-40a5-97dd-3440d1c225ba
       objectReference: {fileID: 0}
     - target: {fileID: 3428643961104354710, guid: 1d08260f365dfbf4e8ea905112f1419a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -837,6 +923,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shotgun Pickeable
       objectReference: {fileID: 0}
+    - target: {fileID: 3428643961104354711, guid: 1d08260f365dfbf4e8ea905112f1419a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -861,7 +951,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4788863507091020780, guid: 231461d17abfcdf439fa0418137c3556, type: 3}
       propertyPath: uniqueID
-      value: da99fd3a-aa18-432c-9a24-41176e406bb5
+      value: e9c4db74-5007-4ce4-8cdf-50582b5db227
       objectReference: {fileID: 0}
     - target: {fileID: 4788863507091020781, guid: 231461d17abfcdf439fa0418137c3556, type: 3}
       propertyPath: m_LocalPosition.x
@@ -963,11 +1053,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2161176229785408046, guid: e996cba7e26958941959a9058c0a8811, type: 3}
       propertyPath: uniqueID
-      value: 4c9b387b-0d17-447d-b979-fa17c746afae
+      value: 3b645964-825e-4c01-8532-383ff81b23c0
       objectReference: {fileID: 0}
     - target: {fileID: 2161176229785408047, guid: e996cba7e26958941959a9058c0a8811, type: 3}
       propertyPath: m_Name
       value: Pistol Pickeable
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161176229785408047, guid: e996cba7e26958941959a9058c0a8811, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
