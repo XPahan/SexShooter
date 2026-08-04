@@ -70,6 +70,8 @@ namespace SexShooter.Dev
         private AudioClip DeathSound => definition != null ? definition.DeathSound : deathSound;
         private float DeathSoundVolume => definition != null ? definition.DeathSoundVolume : deathSoundVolume;
 
+        private int hitLayerIndex = -1;
+
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
@@ -79,6 +81,19 @@ namespace SexShooter.Dev
             {
                 var m = transform.Find("Muzzle");
                 if (m != null) muzzle = m;
+            }
+
+            if (animator != null)
+            {
+                for (int i = 0; i < animator.layerCount; i++)
+                {
+                    if (animator.GetLayerName(i) == "Hit")
+                    {
+                        hitLayerIndex = i;
+                        animator.SetLayerWeight(i, 1f);
+                        break;
+                    }
+                }
             }
         }
 
@@ -166,9 +181,11 @@ namespace SexShooter.Dev
 
         public void NotifyHit()
         {
-            if (dead) return;
-            if (animator != null && !string.IsNullOrEmpty(hitTrigger))
-                animator.SetTrigger(hitTrigger);
+            if (dead || animator == null || string.IsNullOrEmpty(hitTrigger)) return;
+            if (hitLayerIndex >= 0)
+                animator.SetLayerWeight(hitLayerIndex, 1f);
+            animator.ResetTrigger(hitTrigger);
+            animator.SetTrigger(hitTrigger);
         }
 
         public void NotifyDeath()

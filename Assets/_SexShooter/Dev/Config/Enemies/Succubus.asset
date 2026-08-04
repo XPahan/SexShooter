@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _displayName: Succubus
   _maxHealth: 3
-  _staggerDuration: 0.35
+  _staggerDuration: 0.45
   _moveSpeed: 2.5
   _turnSpeed: 8
   _gravity: -20
