@@ -276,8 +276,8 @@ MonoBehaviour:
     weight: 1
   - prefab: {fileID: 4001857357248954327, guid: 56e8de6256aad384cb69b60a300edc69, type: 3}
     weight: 1
-  initialCount: 8
-  maxAlive: 15
+  initialCount: 20
+  maxAlive: 35
   spawnInterval: 3
   minDistanceFromPlayer: 8
   minSeparation: 4
