@@ -27,7 +27,7 @@ MonoBehaviour:
   holdProgressSpeed: 0
   reloadStyle: 0
   allowCancelReload: 0
-  bulletTypeIdentifier: {fileID: 0}
+  bulletTypeIdentifier: {fileID: 11400000, guid: 8dae2df5ea683d04e9de798fd974db68, type: 2}
   projectile: {fileID: 0}
   projectileUsesGravity: 0
   shootDelay: 0
@@ -42,6 +42,8 @@ MonoBehaviour:
   fireRate: 1.2
   reloadTime: 2.7
   emptyReloadTime: 3.3
+  overrideUnholsterTime: 0
+  unholsterTime: 0
   coolSpeed: 1
   cooledPercentageAfterOverheat: 0
   infiniteBullets: 0
@@ -207,8 +209,8 @@ MonoBehaviour:
   minimumDistanceToApplyDamageReduction: 0
   damageReductionMultiplier: 0
   criticalDamageMultiplier: 1.5
-  limitedMagazines: 0
-  totalMagazines: 1
+  limitedMagazines: 1
+  totalMagazines: 5
   showBulletShells: 1
   bulletHoleImpact:
     defaultImpact: {fileID: 2462405574108921655, guid: e6d36bb0ebdf6cc4dacdeee8b6e8a0ce, type: 3}

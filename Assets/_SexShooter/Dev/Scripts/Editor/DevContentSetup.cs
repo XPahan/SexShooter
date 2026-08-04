@@ -11,9 +11,12 @@ namespace SexShooter.Dev.Editor
         private const string AnimPath = "Assets/_SexShooter/Dev/Animators/Succubus.controller";
         private const string ProjPath = "Assets/_SexShooter/Dev/Prefabs/Enemies/SuccubusProjectile.prefab";
         private const string EnemyPath = "Assets/_SexShooter/Dev/Prefabs/Enemies/Succubus.prefab";
+        private const string MeleeEnemyPath = "Assets/_SexShooter/Dev/Prefabs/Enemies/SuccubusMelee.prefab";
         private const string MatPath = "Assets/_SexShooter/Dev/Prefabs/Enemies/SuccubusProjectileMat.mat";
         private const string GorePath = "Assets/_SexShooter/Dev/Prefabs/Vfx/EnemyGoreBurst.prefab";
         private const string DefinitionPath = "Assets/_SexShooter/Dev/Config/Enemies/Succubus.asset";
+        private const string MeleeDefinitionPath = "Assets/_SexShooter/Dev/Config/Enemies/SuccubusMelee.asset";
+        private const string MeleeModelPath = "Assets/DemonGirlSuccubus/Prefabs/DemonGirl_var6.prefab";
         private const string DeathAudioDest = "Assets/_SexShooter/Dev/Audio/Enemies/Succubus_Death.mp3";
         private const string AttackAudioDest = "Assets/_SexShooter/Dev/Audio/Enemies/Succubus_Attack.wav";
         private const string SpawnAudioDest = "Assets/_SexShooter/Dev/Audio/Enemies/Succubus_Spawn.mp3";
@@ -25,6 +28,12 @@ namespace SexShooter.Dev.Editor
         private const string EffectImpactSrc = "Assets/EffectCore/packs/StylizedProjectilePack1/prefabs/Plasma/Plasma_PurpleHaze/Plasma_Medium_PurpleHaze/Plasma_PurpleHaze_Medium_Impact.prefab";
         private const string BgmPath = "Assets/Aggressive FPS Game Music/intensity 1.wav";
         private const string DevPrefabPath = "Assets/_SexShooter/Dev/Dev.prefab";
+        private const string SpawnVfxPath = "Assets/_SexShooter/Dev/Prefabs/Vfx/TeleportFinish.prefab";
+        private const string PistolPath = "Assets/Cowsins/ScriptableObjects/Weapons/Pistol.asset";
+        private const string RiflePath = "Assets/Cowsins/ScriptableObjects/Weapons/Rifle.asset";
+        private const string ShotgunPath = "Assets/Cowsins/ScriptableObjects/Weapons/Shotgun.asset";
+        private const string BulletPickupPath = "Assets/Cowsins/Prefabs/DragAndDropExtras/Bullet Pickeable.prefab";
+        private const string HealthPickupPath = "Assets/Cowsins/Prefabs/DragAndDropExtras/PowerUps/Healthpack.prefab";
 
         [MenuItem("SexShooter/Dev/Setup Succubus + Session")]
         public static void SetupAll()
@@ -82,6 +91,35 @@ namespace SexShooter.Dev.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log("[SexShooter.Dev] Audio + EffectCore VFX + Music wired.");
+        }
+
+        [MenuItem("SexShooter/Dev/Setup Weapons Pickups SpawnVFX")]
+        public static void SetupWeaponsPickupsSpawnVfx()
+        {
+            EnsureFolders();
+            WireInitialWeapons();
+            WirePickupSpawner();
+            WireSpawnVfx();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[SexShooter.Dev] Weapons + Pickups + SpawnVFX wired.");
+        }
+
+        [MenuItem("SexShooter/Dev/Setup Melee Succubus (var6)")]
+        public static void SetupMeleeSuccubus()
+        {
+            EnsureFolders();
+            var controller = BuildAnimator();
+            var gore = AssetDatabase.LoadAssetAtPath<GameObject>(GorePath);
+            if (gore == null) gore = BuildGorePrefab();
+            CopyEnemyAudio();
+            var definition = BuildMeleeEnemyDefinition(gore);
+            var enemy = BuildMeleeEnemy(controller);
+            WireDefinitionToEnemyPrefab(MeleeEnemyPath, definition);
+            WireMeleeIntoSpawner(enemy);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[SexShooter.Dev] Melee Succubus (var6) ready.");
         }
 
         private static void EnsureFolders()
@@ -358,6 +396,7 @@ namespace SexShooter.Dev.Editor
 
             var so = new SerializedObject(def);
             so.FindProperty("_displayName").stringValue = "Succubus";
+            so.FindProperty("_combatStyle").enumValueIndex = (int)EnemyCombatStyle.Ranged;
             so.FindProperty("_maxHealth").floatValue = 3f;
             so.FindProperty("_staggerDuration").floatValue = 0.35f;
             so.FindProperty("_moveSpeed").floatValue = 2.5f;
@@ -426,11 +465,146 @@ namespace SexShooter.Dev.Editor
             }
         }
 
+        private static void WireInitialWeapons()
+        {
+            var pistol = AssetDatabase.LoadAssetAtPath<cowsins.Weapon_SO>(PistolPath);
+            var rifle = AssetDatabase.LoadAssetAtPath<cowsins.Weapon_SO>(RiflePath);
+            var shotgun = AssetDatabase.LoadAssetAtPath<cowsins.Weapon_SO>(ShotgunPath);
+            if (pistol == null || rifle == null || shotgun == null)
+            {
+                Debug.LogError("[SexShooter.Dev] Missing Pistol/Rifle/Shotgun Weapon_SO.");
+                return;
+            }
+
+            var root = PrefabUtility.LoadPrefabContents(DevPrefabPath);
+            try
+            {
+                var wc = root.GetComponentInChildren<cowsins.WeaponController>(true);
+                if (wc == null)
+                {
+                    Debug.LogError("[SexShooter.Dev] WeaponController not found in Dev.prefab.");
+                    return;
+                }
+
+                var so = new SerializedObject(wc);
+                var settings = so.FindProperty("settings");
+                settings.FindPropertyRelative("inventorySize").intValue = 3;
+                var iw = settings.FindPropertyRelative("initialWeapons");
+                iw.arraySize = 3;
+                iw.GetArrayElementAtIndex(0).objectReferenceValue = pistol;
+                iw.GetArrayElementAtIndex(1).objectReferenceValue = rifle;
+                iw.GetArrayElementAtIndex(2).objectReferenceValue = shotgun;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, DevPrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        private static void WirePickupSpawner()
+        {
+            var bullet = AssetDatabase.LoadAssetAtPath<GameObject>(BulletPickupPath);
+            var health = AssetDatabase.LoadAssetAtPath<GameObject>(HealthPickupPath);
+
+            var root = PrefabUtility.LoadPrefabContents(DevPrefabPath);
+            try
+            {
+                var session = root.transform.Find("Session");
+                if (session == null)
+                {
+                    Debug.LogError("[SexShooter.Dev] Session missing in Dev.prefab.");
+                    return;
+                }
+
+                var pickup = session.GetComponent<PickupSpawner>();
+                if (pickup == null) pickup = session.gameObject.AddComponent<PickupSpawner>();
+
+                var so = new SerializedObject(pickup);
+                so.FindProperty("minDistanceFromPlayer").floatValue = 5f;
+                so.FindProperty("minSeparation").floatValue = 3f;
+                so.FindProperty("clearanceRadius").floatValue = 0.5f;
+                so.FindProperty("groundMask").intValue = (1 << 0) | (1 << 3) | (1 << 8);
+                so.FindProperty("blockageMask").intValue = (1 << 0) | (1 << 3) | (1 << 7) | (1 << 8);
+
+                var entries = so.FindProperty("entries");
+                entries.arraySize = 0;
+                void AddEntry(GameObject prefab, int count)
+                {
+                    if (prefab == null) return;
+                    int i = entries.arraySize;
+                    entries.arraySize = i + 1;
+                    var e = entries.GetArrayElementAtIndex(i);
+                    e.FindPropertyRelative("prefab").objectReferenceValue = prefab;
+                    e.FindPropertyRelative("count").intValue = count;
+                }
+                AddEntry(bullet, 10);
+                AddEntry(health, 4);
+
+                // Reuse enemy spawn points as fallbacks when random ground fails.
+                var markers = session.Find("EnemySpawnPoints");
+                var fallback = so.FindProperty("fallbackSpawnPoints");
+                if (markers != null)
+                {
+                    fallback.arraySize = markers.childCount;
+                    for (int i = 0; i < markers.childCount; i++)
+                        fallback.GetArrayElementAtIndex(i).objectReferenceValue = markers.GetChild(i);
+                }
+
+                so.ApplyModifiedPropertiesWithoutUndo();
+
+                var ctrl = session.GetComponent<GameSessionController>();
+                if (ctrl != null)
+                {
+                    var cso = new SerializedObject(ctrl);
+                    cso.FindProperty("pickupSpawner").objectReferenceValue = pickup;
+                    cso.ApplyModifiedPropertiesWithoutUndo();
+                }
+
+                PrefabUtility.SaveAsPrefabAsset(root, DevPrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        private static void WireSpawnVfx()
+        {
+            var spawnVfx = AssetDatabase.LoadAssetAtPath<GameObject>(SpawnVfxPath);
+            if (spawnVfx == null)
+            {
+                Debug.LogWarning("[SexShooter.Dev] Spawn VFX missing: " + SpawnVfxPath);
+                return;
+            }
+
+            var def = AssetDatabase.LoadAssetAtPath<EnemyDefinition>(DefinitionPath);
+            if (def == null)
+            {
+                Debug.LogWarning("[SexShooter.Dev] EnemyDefinition missing: " + DefinitionPath);
+                return;
+            }
+
+            var so = new SerializedObject(def);
+            so.FindProperty("_spawnVfxPrefab").objectReferenceValue = spawnVfx;
+            var scale = so.FindProperty("_spawnVfxScale");
+            if (scale != null) scale.floatValue = 9f;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(def);
+        }
+
         private static void WireDefinitionToEnemy(GameObject enemyPrefab, EnemyDefinition definition)
         {
-            if (enemyPrefab == null || definition == null) return;
+            WireDefinitionToEnemyPrefab(EnemyPath, definition);
+        }
 
-            var root = PrefabUtility.LoadPrefabContents(EnemyPath);
+        private static void WireDefinitionToEnemyPrefab(string prefabPath, EnemyDefinition definition)
+        {
+            if (definition == null) return;
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath) == null) return;
+
+            var root = PrefabUtility.LoadPrefabContents(prefabPath);
             try
             {
                 var brain = root.GetComponent<SuccubusBrain>();
@@ -446,7 +620,186 @@ namespace SexShooter.Dev.Editor
                     so.FindProperty("projectilePrefab").objectReferenceValue = definition.ProjectilePrefab;
                 so.ApplyModifiedPropertiesWithoutUndo();
 
-                PrefabUtility.SaveAsPrefabAsset(root, EnemyPath);
+                PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        private static EnemyDefinition BuildMeleeEnemyDefinition(GameObject gorePrefab)
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<EnemyDefinition>(MeleeDefinitionPath);
+            var def = existing != null ? existing : ScriptableObject.CreateInstance<EnemyDefinition>();
+            var ranged = AssetDatabase.LoadAssetAtPath<EnemyDefinition>(DefinitionPath);
+
+            var so = new SerializedObject(def);
+            so.FindProperty("_displayName").stringValue = "Succubus Melee";
+            so.FindProperty("_combatStyle").enumValueIndex = (int)EnemyCombatStyle.Melee;
+            so.FindProperty("_maxHealth").floatValue = 4f;
+            so.FindProperty("_staggerDuration").floatValue = 0.4f;
+            so.FindProperty("_moveSpeed").floatValue = 4.2f;
+            so.FindProperty("_turnSpeed").floatValue = 10f;
+            so.FindProperty("_gravity").floatValue = -20f;
+            so.FindProperty("_attackRange").floatValue = 2.2f;
+            so.FindProperty("_attackCooldown").floatValue = 1.25f;
+            so.FindProperty("_aimHeight").floatValue = 1.2f;
+            so.FindProperty("_meleeDamage").floatValue = 2f;
+            so.FindProperty("_meleeHitDelay").floatValue = 0.45f;
+            so.FindProperty("_meleeHitRadius").floatValue = 1.9f;
+            so.FindProperty("_deathDespawnDelay").floatValue = 0.05f;
+            so.FindProperty("_deathGoreScale").floatValue = 1f;
+            so.FindProperty("_deathSoundVolume").floatValue = 1f;
+            so.FindProperty("_attackSoundVolume").floatValue = 1f;
+            so.FindProperty("_spawnSoundVolume").floatValue = 1f;
+            so.FindProperty("_spawnVfxScale").floatValue = 9f;
+            so.FindProperty("_deathGorePrefab").objectReferenceValue = gorePrefab;
+
+            if (ranged != null)
+            {
+                so.FindProperty("_deathSound").objectReferenceValue = ranged.DeathSound;
+                so.FindProperty("_attackSound").objectReferenceValue = ranged.AttackSound;
+                so.FindProperty("_spawnSound").objectReferenceValue = ranged.SpawnSound;
+                so.FindProperty("_spawnVfxPrefab").objectReferenceValue = ranged.SpawnVfxPrefab;
+                if (gorePrefab == null)
+                    so.FindProperty("_deathGorePrefab").objectReferenceValue = ranged.DeathGorePrefab;
+            }
+            else
+            {
+                var deathClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DeathAudioDest);
+                if (deathClip != null) so.FindProperty("_deathSound").objectReferenceValue = deathClip;
+                var attackClip = AssetDatabase.LoadAssetAtPath<AudioClip>(AttackAudioDest);
+                if (attackClip != null) so.FindProperty("_attackSound").objectReferenceValue = attackClip;
+                var spawnClip = AssetDatabase.LoadAssetAtPath<AudioClip>(SpawnAudioDest);
+                if (spawnClip != null) so.FindProperty("_spawnSound").objectReferenceValue = spawnClip;
+                so.FindProperty("_spawnVfxPrefab").objectReferenceValue =
+                    AssetDatabase.LoadAssetAtPath<GameObject>(SpawnVfxPath);
+            }
+
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            if (existing == null)
+                AssetDatabase.CreateAsset(def, MeleeDefinitionPath);
+            else
+                EditorUtility.SetDirty(def);
+
+            return def;
+        }
+
+        private static GameObject BuildMeleeEnemy(RuntimeAnimatorController controller)
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(MeleeEnemyPath);
+            if (existing != null)
+            {
+                // Refresh model/controller wiring if prefab already exists.
+                var rootExisting = PrefabUtility.LoadPrefabContents(MeleeEnemyPath);
+                try
+                {
+                    var existingAnim = rootExisting.GetComponentInChildren<Animator>();
+                    if (existingAnim != null) existingAnim.runtimeAnimatorController = controller;
+
+                    // Keep size in sync with ranged Succubus.
+                    rootExisting.transform.localScale = Vector3.one * 1.5f;
+                    var modelT = rootExisting.transform.Find("Model");
+                    if (modelT != null) modelT.localScale = Vector3.one * 0.5f;
+                    var ccExisting = rootExisting.GetComponent<CharacterController>();
+                    if (ccExisting != null)
+                    {
+                        ccExisting.height = 2.3f;
+                        ccExisting.radius = 0.35f;
+                        ccExisting.center = new Vector3(0f, 1.15f, 0f);
+                        ccExisting.skinWidth = 0.08f;
+                    }
+                    var capExisting = rootExisting.GetComponent<CapsuleCollider>();
+                    if (capExisting != null)
+                    {
+                        capExisting.height = 2.3f;
+                        capExisting.radius = 0.35f;
+                        capExisting.center = new Vector3(0f, 1.15f, 0f);
+                    }
+
+                    PrefabUtility.SaveAsPrefabAsset(rootExisting, MeleeEnemyPath);
+                }
+                finally
+                {
+                    PrefabUtility.UnloadPrefabContents(rootExisting);
+                }
+                return AssetDatabase.LoadAssetAtPath<GameObject>(MeleeEnemyPath);
+            }
+
+            var modelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(MeleeModelPath);
+            if (modelPrefab == null) throw new Exception("DemonGirl_var6 missing");
+
+            var root = new GameObject("SuccubusMelee");
+            root.tag = "Enemy";
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            if (enemyLayer >= 0) root.layer = enemyLayer;
+
+            // Match Succubus (ranged) sizing: root 1.5, model 0.5, capsule 2.3 @ 1.15
+            root.transform.localScale = Vector3.one * 1.5f;
+
+            var cc = root.AddComponent<CharacterController>();
+            cc.height = 2.3f; cc.radius = 0.35f; cc.center = new Vector3(0f, 1.15f, 0f);
+            cc.skinWidth = 0.08f;
+
+            var capsule = root.AddComponent<CapsuleCollider>();
+            capsule.height = 2.3f; capsule.radius = 0.35f; capsule.center = new Vector3(0f, 1.15f, 0f);
+
+            var model = (GameObject)PrefabUtility.InstantiatePrefab(modelPrefab, root.transform);
+            model.name = "Model";
+            model.transform.localScale = Vector3.one * 0.5f;
+            foreach (var c in model.GetComponentsInChildren<CharacterController>(true))
+                UnityEngine.Object.DestroyImmediate(c);
+            foreach (var c in model.GetComponentsInChildren<Collider>(true))
+                UnityEngine.Object.DestroyImmediate(c);
+
+            var anim = model.GetComponentInChildren<Animator>() ?? model.AddComponent<Animator>();
+            anim.runtimeAnimatorController = controller;
+            anim.applyRootMotion = false;
+
+            var health = root.AddComponent<SuccubusEnemy>();
+            root.AddComponent<SuccubusBrain>();
+
+            var healthSO = new SerializedObject(health);
+            healthSO.FindProperty("maxHealth").floatValue = 4f;
+            healthSO.FindProperty("maxShield").floatValue = 0f;
+            healthSO.FindProperty("destroyOnDie").boolValue = true;
+            healthSO.FindProperty("_name").stringValue = "Succubus Melee";
+            healthSO.FindProperty("showKillFeed").boolValue = true;
+            healthSO.FindProperty("showUI").boolValue = false;
+            healthSO.ApplyModifiedPropertiesWithoutUndo();
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, MeleeEnemyPath);
+            UnityEngine.Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        private static void WireMeleeIntoSpawner(GameObject meleeEnemyPrefab)
+        {
+            var ranged = AssetDatabase.LoadAssetAtPath<GameObject>(EnemyPath);
+            var root = PrefabUtility.LoadPrefabContents(DevPrefabPath);
+            try
+            {
+                var session = root.transform.Find("Session");
+                if (session == null) return;
+                var spawner = session.GetComponent<EnemyWaveSpawner>();
+                if (spawner == null) return;
+
+                var so = new SerializedObject(spawner);
+                if (ranged != null)
+                    so.FindProperty("enemyPrefab").objectReferenceValue = ranged.GetComponent<SuccubusEnemy>();
+
+                var entries = so.FindProperty("enemyEntries");
+                entries.arraySize = 2;
+                entries.GetArrayElementAtIndex(0).FindPropertyRelative("prefab").objectReferenceValue =
+                    ranged != null ? ranged.GetComponent<SuccubusEnemy>() : null;
+                entries.GetArrayElementAtIndex(0).FindPropertyRelative("weight").floatValue = 1f;
+                entries.GetArrayElementAtIndex(1).FindPropertyRelative("prefab").objectReferenceValue =
+                    meleeEnemyPrefab.GetComponent<SuccubusEnemy>();
+                entries.GetArrayElementAtIndex(1).FindPropertyRelative("weight").floatValue = 1f;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, DevPrefabPath);
             }
             finally
             {
