@@ -843,11 +843,12 @@ namespace SexShooter.Dev.Editor
                 var spawner = session.AddComponent<EnemyWaveSpawner>();
                 var spawnerSO = new SerializedObject(spawner);
                 spawnerSO.FindProperty("enemyPrefab").objectReferenceValue = enemyPrefab.GetComponent<SuccubusEnemy>();
-                spawnerSO.FindProperty("initialCount").intValue = 8;
-                spawnerSO.FindProperty("maxAlive").intValue = 15;
-                spawnerSO.FindProperty("spawnInterval").floatValue = 3f;
+                spawnerSO.FindProperty("initialCount").intValue = 28;
+                spawnerSO.FindProperty("maxAlive").intValue = 45;
+                spawnerSO.FindProperty("spawnInterval").floatValue = 1.2f;
                 spawnerSO.FindProperty("minDistanceFromPlayer").floatValue = 8f;
-                spawnerSO.FindProperty("minSeparation").floatValue = 4f;
+                spawnerSO.FindProperty("minSeparation").floatValue = 2f;
+                spawnerSO.FindProperty("useRandomGroundFallback").boolValue = true;
                 // Ground: Default + Ground + Object
                 spawnerSO.FindProperty("groundMask").intValue = (1 << 0) | (1 << 3) | (1 << 8);
                 // Blockage: similar + Enemy
