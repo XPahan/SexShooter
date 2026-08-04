@@ -32,7 +32,7 @@ namespace SexShooter.Dev
             maxShield = 0f;
             staggerDuration = def.StaggerDuration;
             _name = def.DisplayName;
-            showKillFeed = true;
+            showKillFeed = false;
         }
 
         public override void Damage(float damage, bool isHeadshot)
