@@ -15,7 +15,15 @@ namespace SexShooter.Dev.Editor
         private const string GorePath = "Assets/_SexShooter/Dev/Prefabs/Vfx/EnemyGoreBurst.prefab";
         private const string DefinitionPath = "Assets/_SexShooter/Dev/Config/Enemies/Succubus.asset";
         private const string DeathAudioDest = "Assets/_SexShooter/Dev/Audio/Enemies/Succubus_Death.mp3";
+        private const string AttackAudioDest = "Assets/_SexShooter/Dev/Audio/Enemies/Succubus_Attack.wav";
+        private const string SpawnAudioDest = "Assets/_SexShooter/Dev/Audio/Enemies/Succubus_Spawn.mp3";
         private const string DeathAudioSrc = @"D:\Development\Octogames\Projects\AdultShooter\Assets\_Game\Dev\Audio\Enemies\Succubus_Death.mp3";
+        private const string AttackAudioSrc = @"D:\Development\Octogames\Projects\AdultShooter\Assets\_Game\Dev\Audio\Enemies\Succubus_Attack.wav";
+        private const string SpawnAudioSrc = @"D:\Development\Octogames\Projects\AdultShooter\Assets\_Game\Dev\Audio\Enemies\Succubus_Spawn.mp3";
+        private const string EffectProjectileSrc = "Assets/EffectCore/packs/StylizedProjectilePack1/prefabs/Plasma/Plasma_PurpleHaze/Plasma_Medium_PurpleHaze/Plasma_PurpleHaze_Medium_Projectile.prefab";
+        private const string EffectMuzzleSrc = "Assets/EffectCore/packs/StylizedProjectilePack1/prefabs/Plasma/Plasma_PurpleHaze/Plasma_Medium_PurpleHaze/Plasma_PurpleHaze_Medium_MuzzleFlare.prefab";
+        private const string EffectImpactSrc = "Assets/EffectCore/packs/StylizedProjectilePack1/prefabs/Plasma/Plasma_PurpleHaze/Plasma_Medium_PurpleHaze/Plasma_PurpleHaze_Medium_Impact.prefab";
+        private const string BgmPath = "Assets/Aggressive FPS Game Music/intensity 1.wav";
         private const string DevPrefabPath = "Assets/_SexShooter/Dev/Dev.prefab";
 
         [MenuItem("SexShooter/Dev/Setup Succubus + Session")]
@@ -23,13 +31,14 @@ namespace SexShooter.Dev.Editor
         {
             EnsureFolders();
             var controller = BuildAnimator();
-            var projectile = BuildProjectile();
+            var projectile = BuildEffectCoreProjectile(forceRebuild: false);
             var gore = BuildGorePrefab();
-            CopyDeathAudio();
+            CopyEnemyAudio();
             var definition = BuildEnemyDefinition(projectile, gore);
             var enemy = BuildEnemy(controller, projectile);
             WireDefinitionToEnemy(enemy, definition);
             WireIntoDev(enemy);
+            WireSessionMusic();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log("[SexShooter.Dev] Succubus + Session setup complete.");
@@ -39,11 +48,9 @@ namespace SexShooter.Dev.Editor
         public static void SetupGoreAndDefinition()
         {
             EnsureFolders();
-            var projectile = AssetDatabase.LoadAssetAtPath<GameObject>(ProjPath);
-            if (projectile == null) projectile = BuildProjectile();
-
+            var projectile = BuildEffectCoreProjectile(forceRebuild: false);
             var gore = BuildGorePrefab();
-            CopyDeathAudio();
+            CopyEnemyAudio();
             var definition = BuildEnemyDefinition(projectile, gore);
 
             var enemy = AssetDatabase.LoadAssetAtPath<GameObject>(EnemyPath);
@@ -54,9 +61,27 @@ namespace SexShooter.Dev.Editor
             }
 
             WireDefinitionToEnemy(enemy, definition);
+            WireSessionMusic();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log("[SexShooter.Dev] Gore + EnemyDefinition wired.");
+        }
+
+        [MenuItem("SexShooter/Dev/Setup Audio VFX Music")]
+        public static void SetupAudioVfxMusic()
+        {
+            EnsureFolders();
+            CopyEnemyAudio();
+            var projectile = BuildEffectCoreProjectile(forceRebuild: true);
+            var gore = AssetDatabase.LoadAssetAtPath<GameObject>(GorePath);
+            if (gore == null) gore = BuildGorePrefab();
+            var definition = BuildEnemyDefinition(projectile, gore);
+            var enemy = AssetDatabase.LoadAssetAtPath<GameObject>(EnemyPath);
+            if (enemy != null) WireDefinitionToEnemy(enemy, definition);
+            WireSessionMusic();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[SexShooter.Dev] Audio + EffectCore VFX + Music wired.");
         }
 
         private static void EnsureFolders()
@@ -137,6 +162,66 @@ namespace SexShooter.Dev.Editor
         }
 
         private static GameObject BuildProjectile()
+        {
+            return BuildEffectCoreProjectile(forceRebuild: false);
+        }
+
+        private static GameObject BuildEffectCoreProjectile(bool forceRebuild)
+        {
+            if (!forceRebuild)
+            {
+                var existing = AssetDatabase.LoadAssetAtPath<GameObject>(ProjPath);
+                if (existing != null && existing.GetComponent<SuccubusProjectile>() != null
+                    && existing.GetComponentInChildren<ParticleSystem>() != null)
+                    return existing;
+            }
+
+            var src = AssetDatabase.LoadAssetAtPath<GameObject>(EffectProjectileSrc);
+            if (src == null)
+            {
+                Debug.LogWarning("[SexShooter.Dev] EffectCore plasma projectile missing, falling back to simple sphere.");
+                return BuildSimpleProjectileFallback();
+            }
+
+            var impact = AssetDatabase.LoadAssetAtPath<GameObject>(EffectImpactSrc);
+            var root = (GameObject)PrefabUtility.InstantiatePrefab(src);
+            root.name = "SuccubusProjectile";
+
+            // Strip EffectCore gameplay scripts; keep particle visuals.
+            foreach (var mb in root.GetComponents<MonoBehaviour>())
+            {
+                if (mb == null) continue;
+                var typeName = mb.GetType().Name;
+                if (typeName.StartsWith("EC") || typeName.Contains("particleColorChanger"))
+                    UnityEngine.Object.DestroyImmediate(mb);
+            }
+
+            var rb = root.GetComponent<Rigidbody>();
+            if (rb == null) rb = root.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
+
+            var col = root.GetComponent<SphereCollider>();
+            if (col == null) col = root.AddComponent<SphereCollider>();
+            col.isTrigger = true;
+            col.radius = 0.25f;
+
+            var proj = root.GetComponent<SuccubusProjectile>();
+            if (proj == null) proj = root.AddComponent<SuccubusProjectile>();
+            var projSO = new SerializedObject(proj);
+            var impactProp = projSO.FindProperty("impactPrefab");
+            if (impactProp != null) impactProp.objectReferenceValue = impact;
+            projSO.ApplyModifiedPropertiesWithoutUndo();
+
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(ProjPath) != null)
+                AssetDatabase.DeleteAsset(ProjPath);
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, ProjPath);
+            UnityEngine.Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        private static GameObject BuildSimpleProjectileFallback()
         {
             var existing = AssetDatabase.LoadAssetAtPath<GameObject>(ProjPath);
             if (existing != null) return existing;
@@ -244,21 +329,32 @@ namespace SexShooter.Dev.Editor
             return prefab;
         }
 
-        private static void CopyDeathAudio()
-        {
-            if (AssetDatabase.LoadAssetAtPath<AudioClip>(DeathAudioDest) != null) return;
-            if (!System.IO.File.Exists(DeathAudioSrc)) return;
+        private static void CopyDeathAudio() => CopyEnemyAudio();
 
-            var destAbs = System.IO.Path.GetFullPath(DeathAudioDest);
+        private static void CopyEnemyAudio()
+        {
+            CopyAudioIfNeeded(DeathAudioSrc, DeathAudioDest);
+            CopyAudioIfNeeded(AttackAudioSrc, AttackAudioDest);
+            CopyAudioIfNeeded(SpawnAudioSrc, SpawnAudioDest);
+        }
+
+        private static void CopyAudioIfNeeded(string src, string dst)
+        {
+            if (AssetDatabase.LoadAssetAtPath<AudioClip>(dst) != null) return;
+            if (!System.IO.File.Exists(src)) return;
+            var destAbs = System.IO.Path.GetFullPath(dst);
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(destAbs));
-            System.IO.File.Copy(DeathAudioSrc, destAbs, true);
-            AssetDatabase.ImportAsset(DeathAudioDest);
+            System.IO.File.Copy(src, destAbs, true);
+            AssetDatabase.ImportAsset(dst);
         }
 
         private static EnemyDefinition BuildEnemyDefinition(GameObject projectilePrefab, GameObject gorePrefab)
         {
             var existing = AssetDatabase.LoadAssetAtPath<EnemyDefinition>(DefinitionPath);
             var def = existing != null ? existing : ScriptableObject.CreateInstance<EnemyDefinition>();
+
+            var muzzle = AssetDatabase.LoadAssetAtPath<GameObject>(EffectMuzzleSrc);
+            var impact = AssetDatabase.LoadAssetAtPath<GameObject>(EffectImpactSrc);
 
             var so = new SerializedObject(def);
             so.FindProperty("_displayName").stringValue = "Succubus";
@@ -276,13 +372,21 @@ namespace SexShooter.Dev.Editor
             so.FindProperty("_deathDespawnDelay").floatValue = 0.05f;
             so.FindProperty("_deathGoreScale").floatValue = 1f;
             so.FindProperty("_deathSoundVolume").floatValue = 6f;
+            so.FindProperty("_muzzleFlashScale").floatValue = 0.35f;
+            so.FindProperty("_attackSoundVolume").floatValue = 1f;
+            so.FindProperty("_spawnSoundVolume").floatValue = 1f;
             so.FindProperty("_projectilePrefab").objectReferenceValue =
                 projectilePrefab != null ? projectilePrefab.GetComponent<SuccubusProjectile>() : null;
             so.FindProperty("_deathGorePrefab").objectReferenceValue = gorePrefab;
+            so.FindProperty("_muzzleFlashPrefab").objectReferenceValue = muzzle;
+            so.FindProperty("_impactPrefab").objectReferenceValue = impact;
 
             var deathClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DeathAudioDest);
-            if (deathClip != null)
-                so.FindProperty("_deathSound").objectReferenceValue = deathClip;
+            if (deathClip != null) so.FindProperty("_deathSound").objectReferenceValue = deathClip;
+            var attackClip = AssetDatabase.LoadAssetAtPath<AudioClip>(AttackAudioDest);
+            if (attackClip != null) so.FindProperty("_attackSound").objectReferenceValue = attackClip;
+            var spawnClip = AssetDatabase.LoadAssetAtPath<AudioClip>(SpawnAudioDest);
+            if (spawnClip != null) so.FindProperty("_spawnSound").objectReferenceValue = spawnClip;
 
             so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -292,6 +396,34 @@ namespace SexShooter.Dev.Editor
                 EditorUtility.SetDirty(def);
 
             return def;
+        }
+
+        private static void WireSessionMusic()
+        {
+            var bgm = AssetDatabase.LoadAssetAtPath<AudioClip>(BgmPath);
+            if (bgm == null)
+            {
+                Debug.LogWarning("[SexShooter.Dev] BGM missing: " + BgmPath);
+                return;
+            }
+
+            var root = PrefabUtility.LoadPrefabContents(DevPrefabPath);
+            try
+            {
+                var session = root.transform.Find("Session");
+                if (session == null) return;
+                var ctrl = session.GetComponent<GameSessionController>();
+                if (ctrl == null) return;
+                var so = new SerializedObject(ctrl);
+                so.FindProperty("backgroundMusic").objectReferenceValue = bgm;
+                so.FindProperty("backgroundMusicVolume").floatValue = 0.35f;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, DevPrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
         }
 
         private static void WireDefinitionToEnemy(GameObject enemyPrefab, EnemyDefinition definition)
