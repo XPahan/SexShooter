@@ -67,6 +67,20 @@ namespace SexShooter.Dev
             var enemy = Instantiate(enemyPrefab, pos, Quaternion.identity);
             var brain = enemy.GetComponent<SuccubusBrain>();
             if (brain != null) brain.SetPlayer(player);
+
+            var def = brain != null ? brain.Definition : null;
+            if (def != null)
+            {
+                if (def.SpawnSound != null)
+                    AudioSource.PlayClipAtPoint(def.SpawnSound, pos, def.SpawnSoundVolume);
+
+                if (def.SpawnVfxPrefab != null)
+                {
+                    var vfx = Instantiate(def.SpawnVfxPrefab, pos, Quaternion.identity);
+                    Destroy(vfx, 3f);
+                }
+            }
+
             alive.Add(enemy);
         }
 

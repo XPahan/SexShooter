@@ -25,6 +25,9 @@ namespace SexShooter.Dev
         [SerializeField] private float _projectileLifetime = 5f;
         [SerializeField] private float _aimHeight = 1.2f;
         [SerializeField] private SuccubusProjectile _projectilePrefab;
+        [SerializeField] private GameObject _muzzleFlashPrefab;
+        [SerializeField] private float _muzzleFlashScale = 0.35f;
+        [SerializeField] private GameObject _impactPrefab;
 
         [Header("Death")]
         [SerializeField] private float _deathDespawnDelay = 0.05f;
@@ -33,9 +36,14 @@ namespace SexShooter.Dev
         [SerializeField] private AudioClip _deathSound;
         [SerializeField] private float _deathSoundVolume = 6f;
 
-        [Header("Attack Audio (optional)")]
+        [Header("Attack Audio")]
         [SerializeField] private AudioClip _attackSound;
         [SerializeField] private float _attackSoundVolume = 1f;
+
+        [Header("Spawn")]
+        [SerializeField] private AudioClip _spawnSound;
+        [SerializeField] private float _spawnSoundVolume = 1f;
+        [SerializeField] private GameObject _spawnVfxPrefab;
 
         public string DisplayName => _displayName;
         public float MaxHealth => _maxHealth;
@@ -50,6 +58,9 @@ namespace SexShooter.Dev
         public float ProjectileLifetime => _projectileLifetime;
         public float AimHeight => _aimHeight;
         public SuccubusProjectile ProjectilePrefab => _projectilePrefab;
+        public GameObject MuzzleFlashPrefab => _muzzleFlashPrefab;
+        public float MuzzleFlashScale => Mathf.Max(0.01f, _muzzleFlashScale);
+        public GameObject ImpactPrefab => _impactPrefab;
         public float DeathDespawnDelay => Mathf.Max(0.01f, _deathDespawnDelay);
         public GameObject DeathGorePrefab => _deathGorePrefab;
         public float DeathGoreScale => Mathf.Max(0.1f, _deathGoreScale);
@@ -57,5 +68,8 @@ namespace SexShooter.Dev
         public float DeathSoundVolume => Mathf.Clamp(_deathSoundVolume, 0f, 10f);
         public AudioClip AttackSound => _attackSound;
         public float AttackSoundVolume => Mathf.Clamp01(_attackSoundVolume);
+        public AudioClip SpawnSound => _spawnSound;
+        public float SpawnSoundVolume => Mathf.Clamp01(_spawnSoundVolume);
+        public GameObject SpawnVfxPrefab => _spawnVfxPrefab;
     }
 }

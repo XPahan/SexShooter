@@ -147,7 +147,7 @@ MonoBehaviour:
   projectileDamage: 2
   projectileLifetime: 5
   muzzle: {fileID: 5032471495150362544}
-  projectilePrefab: {fileID: 3421225486283509612, guid: d338f3cb502098b4ca05621110e16671, type: 3}
+  projectilePrefab: {fileID: 5338988497629047216, guid: d338f3cb502098b4ca05621110e16671, type: 3}
   deathGorePrefab: {fileID: 4242828237219237886, guid: b51961f29e186af458ec9bd6227ffc27, type: 3}
   deathGoreScale: 1
   deathSound: {fileID: 8300000, guid: b22471d11d5e4d64e81f765ff50c1710, type: 3}
