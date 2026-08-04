@@ -1,0 +1,254 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &894439505464721152
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5942296583307261485}
+  - component: {fileID: 566520437661234258}
+  - component: {fileID: 5543626431974459376}
+  - component: {fileID: 4001857357248954327}
+  - component: {fileID: 8581842737455820756}
+  m_Layer: 7
+  m_Name: SuccubusMelee
+  m_TagString: Enemy
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5942296583307261485
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894439505464721152}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2591837529404873989}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &566520437661234258
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894439505464721152}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2.3
+  m_Radius: 0.35
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1.15, z: 0}
+--- !u!136 &5543626431974459376
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894439505464721152}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.35
+  m_Height: 2.3
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.15, z: 0}
+--- !u!114 &4001857357248954327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894439505464721152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39b3db4d34936424a803a69d552ff2e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: 4b481023-d20d-476f-b83c-25ad90c4494f
+  _name: Succubus Melee
+  health: 0
+  shield: 0
+  maxHealth: 4
+  maxShield: 0
+  destroyOnDie: 1
+  destroyComponentOnDie: 0
+  deathEffect: {fileID: 0}
+  enemyStatusContainer: {fileID: 0}
+  healthBar: {fileID: 0}
+  shieldBar: {fileID: 0}
+  showUI: 0
+  showDamagePopUps: 0
+  showKillFeed: 1
+  dieSFX: {fileID: 0}
+  events:
+    OnSpawn:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDamaged:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDeath:
+      m_PersistentCalls:
+        m_Calls: []
+  staggerDuration: 0.35
+--- !u!114 &8581842737455820756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894439505464721152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66ddb43abe8c7fa43b35fb0e59b38530, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  definition: {fileID: 11400000, guid: 1d1c418c24fbab543ac6555ee0951ef6, type: 2}
+  moveSpeed: 2.5
+  turnSpeed: 8
+  gravity: -20
+  attackRange: 20
+  attackCooldown: 2
+  aimHeight: 1.2
+  projectileSpeed: 10
+  projectileDamage: 2
+  projectileLifetime: 5
+  meleeDamage: 2
+  meleeHitDelay: 0.4
+  meleeHitRadius: 1.8
+  muzzle: {fileID: 0}
+  projectilePrefab: {fileID: 0}
+  deathGorePrefab: {fileID: 4242828237219237886, guid: b51961f29e186af458ec9bd6227ffc27, type: 3}
+  deathGoreScale: 1
+  deathSound: {fileID: 8300000, guid: b22471d11d5e4d64e81f765ff50c1710, type: 3}
+  deathSoundVolume: 1
+  animator: {fileID: 0}
+  speedParam: Speed
+  attackTrigger: Attack
+  hitTrigger: Hit
+--- !u!1001 &5866654150217396462
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5942296583307261485}
+    m_Modifications:
+    - target: {fileID: 4741193289822132589, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: fed3b0ffc49acb74fa9d7bc3876ad681, type: 2}
+    - target: {fileID: 5240906864385256984, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.006598868
+      objectReference: {fileID: 0}
+    - target: {fileID: 5240906864385256984, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.0077180564
+      objectReference: {fileID: 0}
+    - target: {fileID: 5311038631084146354, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.006598901
+      objectReference: {fileID: 0}
+    - target: {fileID: 5311038631084146354, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.0077180862
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8780142343920760657, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+      propertyPath: m_Name
+      value: Model
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+--- !u!4 &2591837529404873989 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8255806605454700011, guid: 7773c6e11dc88dc4abc651cc9dca8af2, type: 3}
+  m_PrefabInstance: {fileID: 5866654150217396462}
+  m_PrefabAsset: {fileID: 0}

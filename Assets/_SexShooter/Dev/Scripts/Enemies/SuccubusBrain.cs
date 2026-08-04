@@ -1,10 +1,11 @@
+using System.Collections;
+using cowsins;
 using UnityEngine;
 
 namespace SexShooter.Dev
 {
     /// <summary>
-    /// Chase player, stop in range, fire projectiles. Port of AdultShooter EnemyBrain.
-    /// Stats/death VFX come from EnemyDefinition when assigned.
+    /// Chase player; ranged bolts or melee swipe depending on EnemyDefinition.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(SuccubusEnemy))]
@@ -25,6 +26,9 @@ namespace SexShooter.Dev
         [SerializeField] private float projectileSpeed = 10f;
         [SerializeField] private float projectileDamage = 2f;
         [SerializeField] private float projectileLifetime = 5f;
+        [SerializeField] private float meleeDamage = 2f;
+        [SerializeField] private float meleeHitDelay = 0.4f;
+        [SerializeField] private float meleeHitRadius = 1.8f;
         [SerializeField] private Transform muzzle;
         [SerializeField] private SuccubusProjectile projectilePrefab;
 
@@ -46,6 +50,9 @@ namespace SexShooter.Dev
         private float verticalVelocity;
         private float nextAttackTime;
         private bool dead;
+        private bool attackInProgress;
+        private int hitLayerIndex = -1;
+        private Coroutine meleeRoutine;
 
         public EnemyDefinition Definition => definition;
 
@@ -53,6 +60,7 @@ namespace SexShooter.Dev
 
         public void SetDefinition(EnemyDefinition def) => definition = def;
 
+        private bool IsMelee => definition != null ? definition.IsMelee : projectilePrefab == null;
         private float MoveSpeed => definition != null ? definition.MoveSpeed : moveSpeed;
         private float TurnSpeed => definition != null ? definition.TurnSpeed : turnSpeed;
         private float Gravity => definition != null ? definition.Gravity : gravity;
@@ -62,15 +70,15 @@ namespace SexShooter.Dev
         private float ProjectileSpeed => definition != null ? definition.ProjectileSpeed : projectileSpeed;
         private float ProjectileDamage => definition != null ? definition.ProjectileDamage : projectileDamage;
         private float ProjectileLifetime => definition != null ? definition.ProjectileLifetime : projectileLifetime;
+        private float MeleeDamage => definition != null ? definition.MeleeDamage : meleeDamage;
+        private float MeleeHitDelay => definition != null ? definition.MeleeHitDelay : meleeHitDelay;
+        private float MeleeHitRadius => definition != null ? definition.MeleeHitRadius : meleeHitRadius;
         private SuccubusProjectile ProjectilePrefab =>
             definition != null && definition.ProjectilePrefab != null ? definition.ProjectilePrefab : projectilePrefab;
         private GameObject DeathGorePrefab =>
             definition != null && definition.DeathGorePrefab != null ? definition.DeathGorePrefab : deathGorePrefab;
         private float DeathGoreScale => definition != null ? definition.DeathGoreScale : deathGoreScale;
         private AudioClip DeathSound => definition != null ? definition.DeathSound : deathSound;
-        private float DeathSoundVolume => definition != null ? definition.DeathSoundVolume : deathSoundVolume;
-
-        private int hitLayerIndex = -1;
 
         private void Awake()
         {
@@ -97,6 +105,16 @@ namespace SexShooter.Dev
             }
         }
 
+        private void OnDisable()
+        {
+            if (meleeRoutine != null)
+            {
+                StopCoroutine(meleeRoutine);
+                meleeRoutine = null;
+            }
+            attackInProgress = false;
+        }
+
         private void Update()
         {
             if (dead || enemy.IsDead || player == null) return;
@@ -117,6 +135,13 @@ namespace SexShooter.Dev
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, TurnSpeed * Time.deltaTime);
             }
 
+            if (attackInProgress)
+            {
+                ApplyGravityOnly();
+                SetAnimSpeed(0f);
+                return;
+            }
+
             if (distance > AttackRange)
             {
                 Vector3 move = toPlayer.normalized * MoveSpeed;
@@ -133,8 +158,17 @@ namespace SexShooter.Dev
 
         private void TryAttack()
         {
+            if (Time.time < nextAttackTime) return;
+
+            if (IsMelee)
+            {
+                nextAttackTime = Time.time + AttackCooldown;
+                meleeRoutine = StartCoroutine(MeleeAttackRoutine());
+                return;
+            }
+
             var prefab = ProjectilePrefab;
-            if (Time.time < nextAttackTime || prefab == null) return;
+            if (prefab == null) return;
             nextAttackTime = Time.time + AttackCooldown;
 
             if (animator != null && !string.IsNullOrEmpty(attackTrigger))
@@ -161,6 +195,68 @@ namespace SexShooter.Dev
             GameObject impact = definition != null ? definition.ImpactPrefab : null;
             var bolt = Instantiate(prefab, origin, Quaternion.LookRotation(dir));
             bolt.Launch(dir, ProjectileSpeed, ProjectileDamage, ProjectileLifetime, impact);
+        }
+
+        private IEnumerator MeleeAttackRoutine()
+        {
+            attackInProgress = true;
+
+            if (animator != null && !string.IsNullOrEmpty(attackTrigger))
+                animator.SetTrigger(attackTrigger);
+
+            Vector3 origin = transform.position + Vector3.up * AimHeight;
+            if (definition != null && definition.AttackSound != null)
+                EnemySfx.Play3D(definition.AttackSound, origin, definition.AttackSoundVolume);
+
+            float delay = MeleeHitDelay;
+            float elapsed = 0f;
+            while (elapsed < delay)
+            {
+                if (dead || enemy.IsDead || enemy.IsStaggered)
+                {
+                    attackInProgress = false;
+                    meleeRoutine = null;
+                    yield break;
+                }
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            ApplyMeleeHit();
+            yield return new WaitForSeconds(0.35f);
+            attackInProgress = false;
+            meleeRoutine = null;
+        }
+
+        private void ApplyMeleeHit()
+        {
+            if (player == null || dead || enemy.IsDead) return;
+
+            Vector3 center = transform.position + Vector3.up * AimHeight + transform.forward * 0.6f;
+            float radius = MeleeHitRadius;
+            var hits = Physics.OverlapSphere(center, radius, ~0, QueryTriggerInteraction.Collide);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                var col = hits[i];
+                if (col == null) continue;
+
+                var stats = col.GetComponentInParent<PlayerStats>();
+                if (stats != null)
+                {
+                    if (!stats.IsDead) stats.Damage(MeleeDamage, false);
+                    return;
+                }
+
+                if (col.CompareTag("Player"))
+                {
+                    var dmg = col.GetComponentInParent<IDamageable>();
+                    if (dmg != null)
+                    {
+                        dmg.Damage(MeleeDamage, false);
+                        return;
+                    }
+                }
+            }
         }
 
         private void Move(Vector3 horizontal)
@@ -192,6 +288,12 @@ namespace SexShooter.Dev
         {
             if (dead) return;
             dead = true;
+            attackInProgress = false;
+            if (meleeRoutine != null)
+            {
+                StopCoroutine(meleeRoutine);
+                meleeRoutine = null;
+            }
 
             if (controller != null) controller.enabled = false;
             var col = GetComponent<Collider>();

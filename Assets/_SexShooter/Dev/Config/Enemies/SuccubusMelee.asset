@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9d856d1c135ede42a65b6921e08cc4b, type: 3}
+  m_Name: SuccubusMelee
+  m_EditorClassIdentifier: 
+  _displayName: Succubus Melee
+  _combatStyle: 1
+  _maxHealth: 4
+  _staggerDuration: 0.4
+  _moveSpeed: 4.2
+  _turnSpeed: 10
+  _gravity: -20
+  _attackRange: 2.2
+  _attackCooldown: 1.25
+  _aimHeight: 1.2
+  _projectileDamage: 2
+  _projectileSpeed: 10
+  _projectileLifetime: 5
+  _projectilePrefab: {fileID: 0}
+  _muzzleFlashPrefab: {fileID: 0}
+  _muzzleFlashScale: 0.35
+  _impactPrefab: {fileID: 0}
+  _meleeDamage: 2
+  _meleeHitDelay: 0.45
+  _meleeHitRadius: 1.9
+  _deathDespawnDelay: 0.05
+  _deathGorePrefab: {fileID: 4242828237219237886, guid: b51961f29e186af458ec9bd6227ffc27, type: 3}
+  _deathGoreScale: 1
+  _deathSound: {fileID: 8300000, guid: b22471d11d5e4d64e81f765ff50c1710, type: 3}
+  _deathSoundVolume: 1
+  _attackSound: {fileID: 8300000, guid: c5e89af7d11fcef41ac4cdb242d99298, type: 3}
+  _attackSoundVolume: 1
+  _spawnSound: {fileID: 8300000, guid: 7cf4f4688e4cb3e409c8793716910b75, type: 3}
+  _spawnSoundVolume: 1
+  _spawnVfxPrefab: {fileID: 111786, guid: 6fed2eb6a9e2f5e4892b57ce34fbee4b, type: 3}
+  _spawnVfxScale: 9

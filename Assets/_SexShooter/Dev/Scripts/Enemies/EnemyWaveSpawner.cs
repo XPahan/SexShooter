@@ -5,10 +5,19 @@ namespace SexShooter.Dev
 {
     /// <summary>
     /// Wave spawner ported from AdultShooter EnemySpawner.
+    /// Supports multiple enemy prefabs with optional weights.
     /// </summary>
     public class EnemyWaveSpawner : MonoBehaviour
     {
+        [System.Serializable]
+        public class EnemySpawnEntry
+        {
+            public SuccubusEnemy prefab;
+            [Min(0f)] public float weight = 1f;
+        }
+
         [SerializeField] private SuccubusEnemy enemyPrefab;
+        [SerializeField] private EnemySpawnEntry[] enemyEntries;
         [SerializeField] private int initialCount = 8;
         [SerializeField] private int maxAlive = 15;
         [SerializeField] private float spawnInterval = 3f;
@@ -59,12 +68,42 @@ namespace SexShooter.Dev
             TrySpawnOne();
         }
 
+        private SuccubusEnemy PickPrefab()
+        {
+            float total = 0f;
+            if (enemyEntries != null)
+            {
+                for (int i = 0; i < enemyEntries.Length; i++)
+                {
+                    var e = enemyEntries[i];
+                    if (e != null && e.prefab != null && e.weight > 0f)
+                        total += e.weight;
+                }
+            }
+
+            if (total > 0f)
+            {
+                float roll = Random.Range(0f, total);
+                float acc = 0f;
+                for (int i = 0; i < enemyEntries.Length; i++)
+                {
+                    var e = enemyEntries[i];
+                    if (e == null || e.prefab == null || e.weight <= 0f) continue;
+                    acc += e.weight;
+                    if (roll <= acc) return e.prefab;
+                }
+            }
+
+            return enemyPrefab;
+        }
+
         private void TrySpawnOne()
         {
-            if (enemyPrefab == null || player == null) return;
+            var prefab = PickPrefab();
+            if (prefab == null || player == null) return;
             if (!TryFindSpawnPoint(out Vector3 pos)) return;
 
-            var enemy = Instantiate(enemyPrefab, pos, Quaternion.identity);
+            var enemy = Instantiate(prefab, pos, Quaternion.identity);
             var brain = enemy.GetComponent<SuccubusBrain>();
             if (brain != null) brain.SetPlayer(player);
 
@@ -75,60 +114,58 @@ namespace SexShooter.Dev
                     EnemySfx.Play3D(def.SpawnSound, pos + Vector3.up, def.SpawnSoundVolume);
 
                 if (def.SpawnVfxPrefab != null)
-                {
-                    // Align to enemy body center (CharacterController / CapsuleCollider).
-                    float centerY = 0.9f;
-                    var cc = enemy.GetComponent<CharacterController>();
-                    if (cc != null) centerY = cc.center.y;
-                    else
-                    {
-                        var capsule = enemy.GetComponent<CapsuleCollider>();
-                        if (capsule != null) centerY = capsule.center.y;
-                    }
-
-                    var vfx = Instantiate(def.SpawnVfxPrefab, pos + Vector3.up * centerY, Quaternion.identity);
-                    float scale = def.SpawnVfxScale;
-                    vfx.transform.localScale = Vector3.one * scale;
-
-                    // Prefab may carry a baked local offset; snap children relative to spawn.
-                    var systems = vfx.GetComponentsInChildren<ParticleSystem>(true);
-                    for (int s = 0; s < systems.Length; s++)
-                    {
-                        var ps = systems[s];
-                        // Drop null secondary materials — URP often skips rendering when any slot is null.
-                        var renderer = ps.GetComponent<ParticleSystemRenderer>();
-                        if (renderer != null && renderer.sharedMaterials != null)
-                        {
-                            var mats = renderer.sharedMaterials;
-                            int valid = 0;
-                            for (int m = 0; m < mats.Length; m++)
-                                if (mats[m] != null) valid++;
-                            if (valid > 0 && valid != mats.Length)
-                            {
-                                var cleaned = new Material[valid];
-                                int idx = 0;
-                                for (int m = 0; m < mats.Length; m++)
-                                    if (mats[m] != null) cleaned[idx++] = mats[m];
-                                renderer.sharedMaterials = cleaned;
-                            }
-                        }
-
-                        ps.Clear(true);
-                        ps.Play(true);
-                    }
-
-                    Destroy(vfx, 4f);
-                }
+                    SpawnVfx(def, pos, enemy);
             }
 
             alive.Add(enemy);
+        }
+
+        private static void SpawnVfx(EnemyDefinition def, Vector3 pos, SuccubusEnemy enemy)
+        {
+            float centerY = 0.9f;
+            var cc = enemy.GetComponent<CharacterController>();
+            if (cc != null) centerY = cc.center.y;
+            else
+            {
+                var capsule = enemy.GetComponent<CapsuleCollider>();
+                if (capsule != null) centerY = capsule.center.y;
+            }
+
+            var vfx = Object.Instantiate(def.SpawnVfxPrefab, pos + Vector3.up * centerY, Quaternion.identity);
+            vfx.transform.localScale = Vector3.one * def.SpawnVfxScale;
+
+            var systems = vfx.GetComponentsInChildren<ParticleSystem>(true);
+            for (int s = 0; s < systems.Length; s++)
+            {
+                var ps = systems[s];
+                var renderer = ps.GetComponent<ParticleSystemRenderer>();
+                if (renderer != null && renderer.sharedMaterials != null)
+                {
+                    var mats = renderer.sharedMaterials;
+                    int valid = 0;
+                    for (int m = 0; m < mats.Length; m++)
+                        if (mats[m] != null) valid++;
+                    if (valid > 0 && valid != mats.Length)
+                    {
+                        var cleaned = new Material[valid];
+                        int idx = 0;
+                        for (int m = 0; m < mats.Length; m++)
+                            if (mats[m] != null) cleaned[idx++] = mats[m];
+                        renderer.sharedMaterials = cleaned;
+                    }
+                }
+
+                ps.Clear(true);
+                ps.Play(true);
+            }
+
+            Object.Destroy(vfx, 4f);
         }
 
         private bool TryFindSpawnPoint(out Vector3 result)
         {
             result = Vector3.zero;
 
-            // Prefer random points around player on walkable ground
             for (int attempt = 0; attempt < 24; attempt++)
             {
                 Vector2 ring = Random.insideUnitCircle.normalized * Random.Range(minDistanceFromPlayer, minDistanceFromPlayer + 12f);
@@ -144,7 +181,6 @@ namespace SexShooter.Dev
                 return true;
             }
 
-            // Fallback markers
             if (fallbackSpawnPoints != null)
             {
                 for (int i = 0; i < fallbackSpawnPoints.Length; i++)
